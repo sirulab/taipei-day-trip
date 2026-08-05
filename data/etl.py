@@ -41,6 +41,7 @@ with open('taipei-attractions', 'r', encoding ='utf-8') as file:
     data_dict = json.load(file)
 
 attractions = data.get("list", []) # default 避免錯誤
+img_host = data.get("img_host", "")
 
 for attr in attractions:
     attr_id = attr.get("_id")
@@ -71,3 +72,16 @@ for attr in attractions:
 
     ###
     imgurls_raw = attr.get("imgurls", "")
+    paths = []
+    split_result = imgurls_raw.split('/imgs/')
+    for p in split_result:
+        url = f"{img_host}/imgs/{p}"
+        
+        sql_img = "INSERT INTO image (attraction_id, url) VALUES (%s, %s)"
+        cursor.execute(sql_img, (attr_id, url))
+
+conn.commit()
+cursor.close()
+conn.close()
+
+print(f"成功從json匯入sql: {len(attractions)} 筆資料與圖片")
