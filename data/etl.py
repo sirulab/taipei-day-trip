@@ -10,7 +10,9 @@ conn = mysql.connector.connect(
     password="2365533",
     database="taipei_day_trip",
     charset="utf8mb4"
-)
+) 
+# 沒有也可以 charset="utf8mb4"
+# 沒有也可以 DEFAULT CHARSET=utf8mb4
 
 cursor = conn.cursor()
 
