@@ -8,10 +8,14 @@ conn = mysql.connector.connect(
     host="localhost",
     user="root",
     password="2365533",
-    database="taipei_day_trip"
+    database="taipei_day_trip",
+    charset="utf8mb4"
 )
 
 cursor = conn.cursor()
+
+cursor.execute('DROP TABLE IF EXISTS image') ### 假設資料常變動與不常變動
+cursor.execute('DROP TABLE IF EXISTS attraction') 
 
 # IF NOT EX IST S | ?每個都 NOT NULL | ?不要事後改 | info_date 或 build_date
 cursor.execute('''CREATE TABLE IF NOT EXISTS attraction (
@@ -25,10 +29,10 @@ cursor.execute('''CREATE TABLE IF NOT EXISTS attraction (
     mrt VARCHAR(100),
     serial_no VARCHAR(100),
     cat VARCHAR(100),
-    memo_time VARCHAR(255),
+    memo_time TEXT,
     description TEXT,
     address TEXT,
-    imgurls TEXT)'''
+    imgurls TEXT) DEFAULT CHARSET=utf8mb4'''
     ) 
 
 #  ON DELETE CASCADE # AUTO_INCREMENT
@@ -36,13 +40,13 @@ cursor.execute('''CREATE TABLE IF NOT EXISTS image (
     id INT AUTO_INCREMENT PRIMARY KEY,
     attraction_id INT NOT NULL,
     url VARCHAR(500) NOT NULL,
-    FOREIGN KEY (attraction_id) REFERENCES attraction(id))
-    ''')
+    FOREIGN KEY (attraction_id) REFERENCES attraction(id)) DEFAULT CHARSET=utf8mb4'''
+    )
 
 cursor.execute('TRUNCATE TABLE image') # 清空現有圖片資料
 
-with open('taipei-attractions', 'r', encoding ='utf-8') as file:
-    data_dict = json.load(file)
+with open('taipei-attractions.json', 'r', encoding ='utf-8') as file:
+    data = json.load(file)
 
 attractions = data.get("list", []) # default 避免錯誤
 img_host = data.get("img_host", "")
