@@ -24,20 +24,20 @@ cursor.execute('''CREATE TABLE IF NOT EXISTS attraction (
     id INT PRIMARY KEY,
     name VARCHAR(255),
     rate INT,
-    direction TEXT,
+    transport TEXT,
     date DATE,
-    longitude DOUBLE,
-    latitude DOUBLE,
+    lng DOUBLE,
+    lat DOUBLE,
     mrt VARCHAR(100),
     serial_no VARCHAR(100),
-    cat VARCHAR(100),
+    category VARCHAR(100),
     memo_time TEXT,
     description TEXT,
     address TEXT,
     imgurls TEXT) DEFAULT CHARSET=utf8mb4'''
     ) 
-
-#  ON DELETE CASCADE # AUTO_INCREMENT
+# cat AS category # direction AS transport
+# ON DELETE CASCADE # AUTO_INCREMENT
 cursor.execute('''CREATE TABLE IF NOT EXISTS image (
     id INT AUTO_INCREMENT PRIMARY KEY,
     attraction_id INT NOT NULL,
@@ -61,7 +61,7 @@ for attr in attractions:
 
     sql_attr = """
         INSERT INTO attraction 
-        (id, name, rate, direction, date, longitude, latitude, mrt, serial_no, cat, memo_time, description, address, imgurls)
+        (id, name, rate, transport, date, lng, lat, mrt, serial_no, category, memo_time, description, address, imgurls)
         VALUES (%s,  %s,  %s,  %s,  %s,  %s,  %s,  %s,  %s,  %s,  %s,  %s,  %s, %s)
         """
 
