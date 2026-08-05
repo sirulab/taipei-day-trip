@@ -11,6 +11,8 @@ conn = mysql.connector.connect(
     database="taipei_day_trip"
 )
 
+cursor = conn.cursor()
+
 # IF NOT EX IST S | ?每個都 NOT NULL | ?不要事後改 | info_date 或 build_date
 cursor.execute('''CREATE TABLE IF NOT EXISTS attraction (
     id INT PRIMARY KEY,
@@ -26,8 +28,8 @@ cursor.execute('''CREATE TABLE IF NOT EXISTS attraction (
     memo_time VARCHAR(255),
     description TEXT,
     address TEXT,
-    imgurls TEXT
-    ''') 
+    imgurls TEXT)'''
+    ) 
 
 #  ON DELETE CASCADE # AUTO_INCREMENT
 cursor.execute('''CREATE TABLE IF NOT EXISTS image (
@@ -37,6 +39,8 @@ cursor.execute('''CREATE TABLE IF NOT EXISTS image (
     FOREIGN KEY (attraction_id) REFERENCES attraction(id))
     ''')
 
+cursor.execute('TRUNCATE TABLE image') # 清空現有圖片資料
+
 with open('taipei-attractions', 'r', encoding ='utf-8') as file:
     data_dict = json.load(file)
 
@@ -45,6 +49,10 @@ img_host = data.get("img_host", "")
 
 for attr in attractions:
     attr_id = attr.get("_id")
+
+    raw_date = attr.get("date", "")
+    formatted_date = raw_date.replace('/', '-') if raw_date else None ###
+
     sql_attr = """
         INSERT INTO attraction 
         (id, name, rate, direction, date, longitude, latitude, mrt, serial_no, cat, memo_time, description, address, imgurls)
@@ -56,7 +64,7 @@ for attr in attractions:
         attr.get("name"),
         attr.get("rate"),
         attr.get("direction"),
-        attr.get("date"),
+        formatted_date,
         attr.get("longitude"),
         attr.get("latitude"),
         attr.get("MRT"),
@@ -75,10 +83,10 @@ for attr in attractions:
     paths = []
     split_result = imgurls_raw.split('/imgs/')
     for p in split_result:
-        url = f"{img_host}/imgs/{p}"
-        
-        sql_img = "INSERT INTO image (attraction_id, url) VALUES (%s, %s)"
-        cursor.execute(sql_img, (attr_id, url))
+        if p:
+            url = f"{img_host}/imgs/{p}"
+            sql_img = "INSERT INTO image (attraction_id, url) VALUES (%s, %s)"
+            cursor.execute(sql_img, (attr_id, url))
 
 conn.commit()
 cursor.close()
