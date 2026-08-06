@@ -3,6 +3,7 @@ from fastapi.responses import FileResponse
 from typing import Optional
 import mysql.connector
 from database import get_db_connection
+from models import *
 
 app=FastAPI()
 
