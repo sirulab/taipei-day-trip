@@ -1,5 +1,5 @@
 from fastapi import *
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from typing import Optional
 import mysql.connector
 from database import get_db_connection
@@ -38,6 +38,7 @@ def get_attractions(
     page: int = Query(...),
     category: Optional[str] = Query(None),
     keyword: Optional[str] = Query(None)):
+    conn = None
     try:
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True) # dictionary=True >attraction_ids.append(row["id"]) /n TypeError: tuple indices must be integers or slices, not str
@@ -92,6 +93,87 @@ def get_attractions(
                 item["images"] = images_map.get(item["id"], [])
 
         return {"nextPage": next_page, "data": data}
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": True, "message": "伺服器內部錯誤"})
+    finally:
+        if conn and conn.is_connected():
+            cursor.close()
+            conn.close()
+
+@app.get("/api/attraction/{attractionId}")
+def get_attraction_by_id(attractionId: int = Path(...)):
+    conn = None # 例如：資料庫密碼寫錯、MySQL 沒開、連線池滿了/ finally 在清理與關閉連線時，不會「找不到變數名稱」崩潰
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        
+        sql = """
+            SELECT id, name, category, description, address, 
+            transport, mrt, lat, lng
+            FROM attraction
+            WHERE id = %s
+        """
+        cursor.execute(sql, (attractionId,))
+        row = cursor.fetchone()
+        
+        if not row:
+            return JSONResponse(status_code=400, content={"error": True, "message": "景點編號不正確"})
+        
+        img_cursor = conn.cursor()
+        images_map = get_images(img_cursor, [attractionId])
+        img_cursor.close()
+        
+        row["images"] = images_map.get(attractionId, [])
+        
+        return {"data": row}
+
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": True, "message": "伺服器內部錯誤"})
+    finally:
+        if conn and conn.is_connected():
+            cursor.close()
+            conn.close()
+
+@app.get("/api/categories")
+def get_categories():
+    conn = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        sql = "SELECT DISTINCT category FROM attraction WHERE category IS NOT NULL AND category != ''"
+        cursor.execute(sql)
+        rows = cursor.fetchall()
+        
+        categories = [row[0] for row in rows]
+        return {"data": categories}
+
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": True, "message": "伺服器內部錯誤"})
+    finally:
+        if conn and conn.is_connected():
+            cursor.close()
+            conn.close()
+
+@app.get("/api/mrts")
+def get_mrts():
+    conn = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        sql = """
+            SELECT mrt FROM attraction 
+            WHERE mrt IS NOT NULL AND mrt != '' 
+            GROUP BY mrt 
+            ORDER BY COUNT(id) DESC
+        """
+        cursor.execute(sql)
+        rows = cursor.fetchall()
+        
+        mrts = [row[0] for row in rows]
+        return {"data": mrts}
+
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": True, "message": "伺服器內部錯誤"})
     finally:
