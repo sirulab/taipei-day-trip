@@ -38,57 +38,63 @@ def get_attractions(
     page: int = Query(...),
     category: Optional[str] = Query(None),
     keyword: Optional[str] = Query(None)):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True) # dictionary=True >attraction_ids.append(row["id"]) /n TypeError: tuple indices must be integers or slices, not str
 
-    conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True) # dictionary=True >attraction_ids.append(row["id"]) /n TypeError: tuple indices must be integers or slices, not str
+        limit = 8
+        offset = page * limit
 
-    limit = 8
-    offset = page * limit
+        conditions = []
+        params = []
 
-    conditions = []
-    params = []
+        if category:
+            conditions.append("category = %s")
+            params.append(category)
+            
+        if keyword:
+            conditions.append("(mrt = %s OR name LIKE %s)")
+            params.append(keyword)
+            params.append(f"%{keyword}%")
 
-    if category:
-        conditions.append("category = %s")
-        params.append(category)
-        
-    if keyword:
-        conditions.append("(mrt = %s OR name LIKE %s)")
-        params.append(keyword)
-        params.append(f"%{keyword}%")
+        # 多撈一筆法（ LIMIT 9 ）# 查詢總資料筆數（ COUNT(*) ）		
+        if len(conditions) > 0:
+            where_clause = " WHERE " + " AND ".join(conditions)
+        else:
+            where_clause = ""
 
-    # 多撈一筆法（ LIMIT 9 ）# 查詢總資料筆數（ COUNT(*) ）		
-    if len(conditions) > 0:
-        where_clause = " WHERE " + " AND ".join(conditions)
-    else:
-        where_clause = ""
+        sql = f"""
+            SELECT id, name, category, description, address, 
+            transport, mrt, lat, lng
+            FROM attraction
+            {where_clause}
+            LIMIT %s OFFSET %s
+        """
+        cursor.execute(sql, tuple(params + [limit + 1, offset]))
+        rows = cursor.fetchall()
 
-    sql = f"""
-        SELECT id, name, category, description, address, 
-        transport, mrt, lat, lng
-        FROM attraction
-        {where_clause}
-        LIMIT %s OFFSET %s
-    """
-    cursor.execute(sql, tuple(params + [limit + 1, offset]))
-    rows = cursor.fetchall()
+        if len(rows) > limit:
+            next_page = page + 1
+        else:
+            next_page = None
+        data = rows[:limit]  # 只需要前 8 筆資料
 
-    if len(rows) > limit:
-        next_page = page + 1
-    else:
-        next_page = None
-    data = rows[:limit]  # 只需要前 8 筆資料
+        attraction_ids = []
+        for row in data:
+            attraction_ids.append(row["id"])
 
-    attraction_ids = []
-    for row in data:
-        attraction_ids.append(row["id"])
+        if attraction_ids:
+            img_cursor = conn.cursor()
+            images_map = get_images(img_cursor, attraction_ids)
+            img_cursor.close()
+            
+            for item in data:
+                item["images"] = images_map.get(item["id"], [])
 
-    if attraction_ids:
-        img_cursor = conn.cursor()
-        images_map = get_images(img_cursor, attraction_ids)
-        img_cursor.close()
-        
-        for item in data:
-            item["images"] = images_map.get(item["id"], [])
-
-    return {"nextPage": next_page, "data": data}
+        return {"nextPage": next_page, "data": data}
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": True, "message": "伺服器內部錯誤"})
+    finally:
+        if conn and conn.is_connected():
+            cursor.close()
+            conn.close()
