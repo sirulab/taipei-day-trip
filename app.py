@@ -40,7 +40,7 @@ def get_attractions(
     keyword: Optional[str] = Query(None)):
 
     conn = get_db_connection()
-    cursor = conn.cursor() # dictionary=True
+    cursor = conn.cursor(dictionary=True) # dictionary=True >attraction_ids.append(row["id"]) /n TypeError: tuple indices must be integers or slices, not str
 
     limit = 8
     offset = page * limit
@@ -49,7 +49,7 @@ def get_attractions(
     params = []
 
     if category:
-        conditions.append("cat = %s")
+        conditions.append("category = %s")
         params.append(category)
         
     if keyword:
@@ -65,7 +65,7 @@ def get_attractions(
 
     sql = f"""
         SELECT id, name, category, description, address, 
-                transport, mrt, latitude AS lat, longitude AS lng
+        transport, mrt, lat, lng
         FROM attraction
         {where_clause}
         LIMIT %s OFFSET %s
