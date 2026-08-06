@@ -33,7 +33,9 @@ def get_images(cursor, attraction_ids: list):
         images_map[att_id].append(url)
     return images_map
 
-@app.get("/api/attractions")
+@app.get("/api/attractions", 
+    tags=["Attraction"],
+    summary="取得景點資料列表")
 def get_attractions(
     page: int = Query(...),
     category: Optional[str] = Query(None),
@@ -100,7 +102,9 @@ def get_attractions(
             cursor.close()
             conn.close()
 
-@app.get("/api/attraction/{attractionId}")
+@app.get("/api/attraction/{attractionId}",
+    tags=["Attraction"],
+    summary="根據景點編號取得景點資料")
 def get_attraction_by_id(attractionId: int = Path(...)):
     conn = None # 例如：資料庫密碼寫錯、MySQL 沒開、連線池滿了/ finally 在清理與關閉連線時，不會「找不到變數名稱」崩潰
     try:
@@ -134,7 +138,9 @@ def get_attraction_by_id(attractionId: int = Path(...)):
             cursor.close()
             conn.close()
 
-@app.get("/api/categories")
+@app.get("/api/categories",
+    tags=["Attraction Category"],
+    summary="取得景點分類名稱列表")
 def get_categories():
     conn = None
     try:
@@ -155,7 +161,9 @@ def get_categories():
             cursor.close()
             conn.close()
 
-@app.get("/api/mrts")
+@app.get("/api/mrts",
+    tags=["MRT Station"],
+    summary="取得捷運站名稱列表")
 def get_mrts():
     conn = None
     try:
