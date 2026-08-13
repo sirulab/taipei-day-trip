@@ -1,0 +1,130 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Noto Sans TC";
+  color: blue;
+  overflow-x: hidden;
+}
+
+a { text-decoration: none; color: inherit; }
+
+.navbar {
+  background-color: lightblue;
+  height: 40px;
+}
+
+.navbar-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 1200px;
+  height: 100%; /* */
+  margin: auto; /* */
+}
+
+.navbar-links {
+    display: flex; /* */
+    gap: 40px;
+}
+
+.hero {
+  background: lightgray;
+  height: 300px; 
+  margin-bottom: 40px;
+}
+
+.hero-container {
+  display: flex;
+  flex-direction: column; /* */
+  justify-content: center;
+  align-items: flex-start;
+  width: 1200px;
+  margin: auto;
+  height: 100%;
+}
+
+.hero h1 { margin-bottom: 20px; font-size: 28px; }
+.hero p { margin-bottom: 20px; font-size: 16px; font-weight: bold; }
+
+.search-bar {
+  display: flex;
+  width: 100%;
+  height: 40px;
+}
+
+.search-bar input, .search-bar select {
+  padding: 0 10px;
+  border: none;
+  outline: none;
+}
+
+.search-btn {
+  background-color: blue;
+  border: none;
+  color: white;
+  padding: 20px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.main {
+  margin-bottom: 60px;
+}
+
+.attraction-cards {
+  display: grid;
+  width: 1200px;
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+  margin: auto;
+  gap: 40px;
+}
+
+.card {
+  border: 1px;
+  border-radius: 5px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-image {
+  position: relative;
+  height: 200px;
+}
+
+.card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.card-title {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background-color: grey;
+  color: white;
+  padding: 10px;
+  font-size: 16px;
+}
+
+.card-info {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  color: lightgray;
+  font-size: 12px;
+}
+
+.site-footer {
+  background-color: grey;
+  color: white;
+  text-align: center;
+  padding: 20px;
+}
