@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>台北一日遊</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
 
@@ -34,8 +34,22 @@
   
   <main class="main">
 
-    <section class="attraction-cards">
+    <section class="mrt-section">
+      <button class="mrt-btn">‹</button>
+      <div class="mrt-list">
+        <div class="mrt-item">劍潭</div>
+        <div class="mrt-item">圓山</div>
+        <div class="mrt-item">士林</div>
+        <div class="mrt-item">新北投</div>
+        <div class="mrt-item">臺大醫院</div>
+        <div class="mrt-item">龍山寺</div>
+        <div class="mrt-item">西門</div>
+      </div>
+      <button class="mrt-btn">›</button>
+    </section>
 
+    <section class="attraction-section">
+    <!--
       <div class="card">
         <div class="card-image">
           <img src="Placeholder Image.png" alt="平安鐘">
@@ -46,7 +60,7 @@
           <span>公共藝術</span>
         </div>
       </div>
-
+      -->
     </section>
   </main>
 
@@ -54,5 +68,37 @@
     <p>COPYRIGHT 2021 台北一日遊</p>
   </footer>
 
+  <script>
+    const API_URL = '/api/attractions?page=0';
+
+async function fetchAttractions() {
+    const response = await fetch(API_URL);
+    const result = await response.json();
+    renderAttractions(result.data); 
+}
+
+function renderAttractions(attractions) {
+  const grid = document.querySelector('.attraction-section');
+  grid.innerHTML = ''; 
+  attractions.forEach(site => {
+    const firstImage = site.images[0]; 
+    const cardHTML = `
+      <div class="card">
+        <div class="card-image">
+          <img src="${firstImage}" alt="${site.name}">
+          <h3 class="card-title">${site.name}</h3>
+        </div>
+        <div class="card-info">
+          <span>${site.mrt}</span>
+          <span>${site.category}</span>
+        </div>
+      </div>
+    `;
+    grid.insertAdjacentHTML('beforeend', cardHTML);
+  });
+}
+
+fetchAttractions();
+  </script>
 </body>
 </html>

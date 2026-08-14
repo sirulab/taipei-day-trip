@@ -34,7 +34,7 @@ a { text-decoration: none; color: inherit; }
 .hero {
   background: lightgray;
   height: 300px; 
-  margin-bottom: 40px;
+  margin-bottom: 20px;
 }
 
 .hero-container {
@@ -77,7 +77,7 @@ a { text-decoration: none; color: inherit; }
   margin-bottom: 60px;
 }
 
-.attraction-cards {
+.attraction-section {
   display: grid;
   width: 1200px;
   grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
@@ -120,6 +120,34 @@ a { text-decoration: none; color: inherit; }
   padding: 10px;
   color: lightgray;
   font-size: 12px;
+}
+
+.mrt-section {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 1200px;
+  margin-bottom: 20px;
+  padding: 20px;
+}
+
+.mrt-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 20px;
+}
+
+.mrt-list {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  overflow-x: auto; 
+}
+
+.mrt-item {
+  cursor: pointer;
 }
 
 .site-footer {
