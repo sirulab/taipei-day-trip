@@ -50,6 +50,49 @@ a { text-decoration: none; color: inherit; }
 .hero h1 { margin-bottom: 20px; font-size: 28px; }
 .hero p { margin-bottom: 20px; font-size: 16px; font-weight: bold; }
 
+.category-dropdown {
+  position: relative;
+  height: 100%;
+}
+
+.category-btn {
+  height: 100%;
+  padding: 0 15px;
+  background-color: white;
+  border: none;
+  border-right: 1px solid #ccc;
+  cursor: pointer;
+  font-size: 16px;
+  white-space: nowrap;
+}
+
+.category-popup {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 320px;
+  background-color: white;
+  border-radius: 5px;
+  padding: 20px;
+  z-index: 100; /* 最上層 */
+  
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px 10px;
+}
+
+.category-item {
+  text-align: center;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 5px;
+}
+
+.category-item:hover {
+  border-radius: 3px;
+}
+
+
 .search-bar {
   display: flex;
   width: 100%;

@@ -23,9 +23,15 @@
       <h1>輕鬆享受台北一日悠閒</h1>
       <p>探索每個角落，體驗城市的深度旅遊行程</p>
       <form class="search-bar">
+        <!--
         <select>
           <option>全部分類</option>
         </select>
+        -->
+        <div class="category-dropdown">
+          <button type="button" class="category-btn" id="category-btn">全部分類 ▼</button>
+          <div class="category-popup" id="category-popup" style="display: none;">
+        </div>
         <input type="text" placeholder="輸入景點名稱查詢">
         <button type="submit" class="search-btn">&#128269</button> <!--改用icon-->
       </form>
@@ -126,6 +132,61 @@ function renderMrts(mrtArray) {
 }
 
 fetchMrts();
+
+const CATEGORY_API_URL = '/api/categories';
+
+// 1. 去後端撈取分類資料
+async function fetchCategories() {
+  try {
+    const response = await fetch(CATEGORY_API_URL);
+    const result = await response.json();
+    
+    if (result.data) {
+      renderCategories(result.data);
+    }
+  } catch (error) {
+    console.error('取得分類資料失敗：', error);
+  }
+}
+
+function renderCategories(categories) {
+  const popup = document.getElementById('category-popup');
+  const categoryBtn = document.getElementById('category-btn');
+  popup.innerHTML = '';
+
+  categories.forEach(catName => {
+    const div = document.createElement('div');
+    div.className = 'category-item';
+    div.textContent = catName;
+
+    div.addEventListener('click', () => {
+      categoryBtn.textContent = catName + ' ▼';
+      popup.style.display = 'none';
+    });
+
+    popup.appendChild(div);
+  });
+}
+
+document.getElementById('category-btn').addEventListener('click', (event) => {
+  event.stopPropagation(); 
+  
+  const popup = document.getElementById('category-popup');
+  if (popup.style.display === 'none') {
+    popup.style.display = 'grid';
+  } else {
+    popup.style.display = 'none';
+  }
+});
+
+window.addEventListener('click', () => {
+  const popup = document.getElementById('category-popup');
+  if (popup.style.display === 'grid') {
+    popup.style.display = 'none';
+  }
+});
+
+fetchCategories();
   </script>
 </body>
 </html>
