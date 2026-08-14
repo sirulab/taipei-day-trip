@@ -36,7 +36,8 @@
 
     <section class="mrt-section">
       <button class="mrt-btn">‹</button>
-      <div class="mrt-list">
+      <div class="mrt-list" id="mrt-list">
+        <!--
         <div class="mrt-item">劍潭</div>
         <div class="mrt-item">圓山</div>
         <div class="mrt-item">士林</div>
@@ -44,6 +45,7 @@
         <div class="mrt-item">臺大醫院</div>
         <div class="mrt-item">龍山寺</div>
         <div class="mrt-item">西門</div>
+        -->
       </div>
       <button class="mrt-btn">›</button>
     </section>
@@ -99,6 +101,31 @@ function renderAttractions(attractions) {
 }
 
 fetchAttractions();
+
+const MRT_API_URL = '/api/mrts';
+
+async function fetchMrts() {
+  const response = await fetch(MRT_API_URL);
+  
+  const result = await response.json();
+  renderMrts(result.data);
+}
+
+function renderMrts(mrtArray) {
+  const mrtListContainer = document.getElementById('mrt-list');
+  mrtListContainer.innerHTML = '';
+
+  mrtArray.forEach(stationName => {
+    // vs. insertAdjacentHTML
+    const div = document.createElement('div');
+    div.className = 'mrt-item';
+    div.textContent = stationName;
+    
+    mrtListContainer.appendChild(div);
+  });
+}
+
+fetchMrts();
   </script>
 </body>
 </html>
