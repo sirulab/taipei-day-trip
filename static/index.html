@@ -201,6 +201,19 @@
       
       const result = await response.json();
       renderMrts(result.data);
+
+      const mrtList = document.getElementById('mrt-list');
+      const mrtBtns = document.querySelectorAll('.mrt-btn');
+      const leftBtn = mrtBtns[0];
+      const rightBtn = mrtBtns[1];
+
+    leftBtn.addEventListener('click', () => {
+      mrtList.scrollBy({ left: -300, behavior: 'smooth' });
+    });
+
+    rightBtn.addEventListener('click', () => {
+      mrtList.scrollBy({ left: 300, behavior: 'smooth' });
+    });
     }
 
     function renderMrts(mrtArray) {

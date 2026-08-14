@@ -187,10 +187,19 @@ a { text-decoration: none; color: inherit; }
   align-items: center;
   gap: 20px;
   overflow-x: auto; 
+  
+  scrollbar-width: none; /* 隱藏 Firefox 和 IE 的卷軸*/
+  -ms-overflow-style: none;
+}
+
+.mrt-list::-webkit-scrollbar { /* 隱藏 Chrome 和 Safari 的卷軸*/
+  display: none; 
 }
 
 .mrt-item {
   cursor: pointer;
+  white-space: nowrap; /* 強制文字不換行 */
+  flex-shrink: 0;
 }
 
 .site-footer {
