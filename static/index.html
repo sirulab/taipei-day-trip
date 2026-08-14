@@ -30,10 +30,10 @@
         -->
         <div class="category-dropdown">
           <button type="button" class="category-btn" id="category-btn">全部分類 ▼</button>
-          <div class="category-popup" id="category-popup" style="display: none;">
+          <div class="category-popup" id="category-popup" style="display: none;"></div>
         </div>
         <input type="text" placeholder="輸入景點名稱查詢">
-        <button type="submit" class="search-btn">&#128269</button> <!--改用icon-->
+        <button type="submit" class="search-btn">&#128269;</button> <!--改用icon-->
       </form>
     </div>
   </div>
@@ -82,7 +82,7 @@
     let currentCategory = null;
     let currentKeyword = null;
 
-    async function fetchAttractions() {
+    async function fetchAttractions(isAppend = false) {
       let url = `/api/attractions?page=${nextPage}`;
       if (currentCategory && currentCategory !== '全部分類') {
         url += `&category=${encodeURIComponent(currentCategory)}`;
@@ -94,12 +94,14 @@
       const response = await fetch(url);
       const result = await response.json();
       nextPage = result.nextPage;
-      renderAttractions(result.data);
+      renderAttractions(result.data, isAppend);
     }
-
-    function renderAttractions(attractions) {
+    
+    function renderAttractions(attractions, isAppend = false) {
       const grid = document.querySelector('.attraction-section');
-      grid.innerHTML = ''; 
+      if (!isAppend) {
+        grid.innerHTML = ''; 
+      }
       attractions.forEach(site => {
         const firstImage = site.images[0]; 
         const cardHTML = `
@@ -118,13 +120,12 @@
       });
     }
 
-    fetchAttractions();
-
     const observer = new IntersectionObserver((entries) => {
       const footerEntry = entries[0];
       const footer = document.querySelector('.site-footer');
       if (footerEntry.isIntersecting && nextPage !== null) {
         fetchAttractions(true);
+      }
         }, { threshold: 0.5 });
 
     const footer = document.querySelector('.site-footer');
@@ -132,7 +133,10 @@
 
     fetchAttractions(false);
 
-    fetchMrts();
+    const searchForm = document.querySelector('.search-bar');
+    const searchInput = searchForm.querySelector('input');
+    const categoryBtn = document.getElementById('category-btn');
+    const popup = document.getElementById('category-popup');
 
     const CATEGORY_API_URL = '/api/categories';
 
@@ -143,8 +147,6 @@
     }
 
     function renderCategories(categories) {
-      const popup = document.getElementById('category-popup');
-      const categoryBtn = document.getElementById('category-btn');
       popup.innerHTML = '';
 
       categories.forEach(catName => {
@@ -155,11 +157,24 @@
         div.addEventListener('click', () => {
           categoryBtn.textContent = catName + ' ▼';
           popup.style.display = 'none';
+          currentCategory = catName;
+
+          nextPage = 0; 
+          fetchAttractions(false);
         });
 
         popup.appendChild(div);
       });
     }
+
+    searchForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      currentKeyword = searchInput.value;
+      nextPage = 0;
+      fetchAttractions(false);
+    });
+
+    fetchCategories();
 
     document.getElementById('category-btn').addEventListener('click', (event) => {
       event.stopPropagation(); 
@@ -179,8 +194,6 @@
       }
     });
 
-    fetchCategories();
-
     const MRT_API_URL = '/api/mrts';
 
     async function fetchMrts() {
@@ -199,10 +212,20 @@
         const div = document.createElement('div');
         div.className = 'mrt-item';
         div.textContent = stationName;
+
+        div.addEventListener('click', () => {
+        searchInput.value = stationName;
+        currentKeyword = stationName;
+
+        nextPage = 0;
+        fetchAttractions(false); 
+        });
         
         mrtListContainer.appendChild(div);
-      });
-    }
+        });
+      }
+
+    fetchMrts();
   </script>
 </body>
 </html>
