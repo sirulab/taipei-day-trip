@@ -81,8 +81,12 @@
     let nextPage = 0;
     let currentCategory = null;
     let currentKeyword = null;
+    let isLoading = false;
 
     async function fetchAttractions(isAppend = false) {
+      if (isLoading) return;
+      isLoading = true;
+
       let url = `/api/attractions?page=${nextPage}`;
       if (currentCategory && currentCategory !== '全部分類') {
         url += `&category=${encodeURIComponent(currentCategory)}`;
@@ -90,11 +94,16 @@
       if (currentKeyword) {
       url += `&keyword=${encodeURIComponent(currentKeyword)}`;
       }
-
-      const response = await fetch(url);
-      const result = await response.json();
-      nextPage = result.nextPage;
-      renderAttractions(result.data, isAppend);
+      try {
+        const response = await fetch(url);
+        const result = await response.json();
+        nextPage = result.nextPage;
+        renderAttractions(result.data, isAppend);
+      } catch (error) {
+        console.error('Fetch error:', error);
+      } finally {
+        isLoading = false; 
+      }
     }
     
     function renderAttractions(attractions, isAppend = false) {
@@ -158,17 +167,18 @@
           categoryBtn.textContent = catName + ' ▼';
           popup.style.display = 'none';
           currentCategory = catName;
-
+          
           nextPage = 0; 
           fetchAttractions(false);
+          
         });
 
         popup.appendChild(div);
       });
     }
 
-    searchForm.addEventListener('submit', (e) => {
-      e.preventDefault();
+    searchForm.addEventListener('submit', (event) => {
+      event.preventDefault();
       currentKeyword = searchInput.value;
       nextPage = 0;
       fetchAttractions(false);

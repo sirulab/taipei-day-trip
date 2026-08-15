@@ -29,8 +29,9 @@ a { text-decoration: none; color: inherit; }
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 100%;
+  width: 100%; /* calc(100% - 40px) */
   max-width: 1200px;
+  padding-inline: 20px;
   height: 100%; /* */
   margin: auto; /* */
 }
@@ -41,7 +42,12 @@ a { text-decoration: none; color: inherit; }
 }
 
 .hero {
-  background: var(--color-theme);
+  /* background: var(--color-theme); */
+  /* background-image: url('https://padax.github.io/taipei-day-trip-resources/imgs/25-0.jpg'); */
+  background: 
+    url('https://padax.github.io/taipei-day-trip-resources/imgs/10-4.jpg');
+  background-size: cover;
+  background-position: center;
   height: 300px; 
   margin-bottom: 20px;
 }
@@ -53,6 +59,7 @@ a { text-decoration: none; color: inherit; }
   align-items: flex-start;
   width: 100%;
   max-width: 1200px;
+  padding-inline: 20px;
   height: 100%;
   margin: auto;
 }
@@ -80,8 +87,7 @@ a { text-decoration: none; color: inherit; }
   position: absolute;
   top: 100%;
   left: 0;
-  width: 100%;
-  max-width: 320x;
+  width: 320px; /* 不是相對 */
   background-color: white;
   border-radius: 5px;
   padding: 20px;
@@ -117,7 +123,7 @@ a { text-decoration: none; color: inherit; }
 }
 
 .search-btn {
-  background-color: blue;
+  background-color: grey;
   border: none;
   color: white;
   padding: 20px;
@@ -135,6 +141,7 @@ a { text-decoration: none; color: inherit; }
   display: grid;
   width: 100%;
   max-width: 1200px;
+  padding-inline: 20px;
   grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
   margin: auto;
   gap: 40px;
@@ -183,6 +190,7 @@ a { text-decoration: none; color: inherit; }
   justify-content: flex-start;
   width: 100%;
   max-width: 1200px;
+  padding-inline: 20px;
   margin: auto; /* ??? */
   margin-bottom: 20px;
   padding: 20px;
