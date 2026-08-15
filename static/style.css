@@ -25,11 +25,12 @@ a { text-decoration: none; color: inherit; }
   height: 40px;
 }
 
-.navbar-container {
+.navbar-section {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 1200px;
+  width: 100%;
+  max-width: 1200px;
   height: 100%; /* */
   margin: auto; /* */
 }
@@ -45,14 +46,15 @@ a { text-decoration: none; color: inherit; }
   margin-bottom: 20px;
 }
 
-.hero-container {
+.hero-section {
   display: flex;
   flex-direction: column; /* */
   justify-content: center;
   align-items: flex-start;
-  width: 1200px;
-  margin: auto;
+  width: 100%;
+  max-width: 1200px;
   height: 100%;
+  margin: auto;
 }
 
 .hero h1 { margin-bottom: 20px; font-size: 28px; }
@@ -68,7 +70,7 @@ a { text-decoration: none; color: inherit; }
   padding: 0 15px;
   background-color: white;
   border: none;
-  border-right: 1px solid #ccc;
+  border-right: 1px grey;
   cursor: pointer;
   font-size: 16px;
   white-space: nowrap;
@@ -78,7 +80,8 @@ a { text-decoration: none; color: inherit; }
   position: absolute;
   top: 100%;
   left: 0;
-  width: 320px;
+  width: 100%;
+  max-width: 320x;
   background-color: white;
   border-radius: 5px;
   padding: 20px;
@@ -130,7 +133,8 @@ a { text-decoration: none; color: inherit; }
 
 .attraction-section {
   display: grid;
-  width: 1200px;
+  width: 100%;
+  max-width: 1200px;
   grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
   margin: auto;
   gap: 40px;
@@ -177,7 +181,8 @@ a { text-decoration: none; color: inherit; }
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  width: 1200px;
+  width: 100%;
+  max-width: 1200px;
   margin: auto; /* ??? */
   margin-bottom: 20px;
   padding: 20px;

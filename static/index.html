@@ -9,7 +9,7 @@
 <body>
 
   <nav class="navbar">
-    <div class="navbar-container">
+    <div class="navbar-section">
       <a href="/" class="logo">台北一日遊</a>
       <ul class="navbar-links">
         <a href="#">預定行程</a>
@@ -19,7 +19,7 @@
   </nav>
   
   <div class="hero">
-    <div class="hero-container">
+    <div class="hero-section">
       <h1>輕鬆享受台北一日悠閒</h1>
       <p>探索每個角落，體驗城市的深度旅遊行程</p>
       <form class="search-bar">
@@ -217,8 +217,8 @@
     }
 
     function renderMrts(mrtArray) {
-      const mrtListContainer = document.getElementById('mrt-list');
-      mrtListContainer.innerHTML = '';
+      const mrtListSection = document.getElementById('mrt-list');
+      mrtListSection.innerHTML = '';
 
       mrtArray.forEach(stationName => {
         // vs. insertAdjacentHTML
@@ -234,7 +234,7 @@
         fetchAttractions(false); 
         });
         
-        mrtListContainer.appendChild(div);
+        mrtListSection.appendChild(div);
         });
       }
 
