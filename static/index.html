@@ -33,7 +33,9 @@
           <div class="category-popup" id="category-popup" style="display: none;"></div>
         </div>
         <input type="text" placeholder="輸入景點名稱查詢">
-        <button type="submit" class="search-btn">&#128269;</button> <!--改用icon-->
+        <button type="submit" class="search-btn">
+          <!-- <img src="/static/icon/search bar.png" alt="搜尋" style="width: 24px; height: 24px;"> -->
+        </button> <!--改用icon-->
       </form>
     </div>
   </div>
@@ -41,7 +43,7 @@
   <main class="main">
 
     <section class="mrt-section">
-      <button class="mrt-btn">‹</button>
+      <button class="mrt-btn" id="left-btn"></button>
       <div class="mrt-list" id="mrt-list">
         <!--
         <div class="mrt-item">劍潭</div>
@@ -53,7 +55,7 @@
         <div class="mrt-item">西門</div>
         -->
       </div>
-      <button class="mrt-btn">›</button>
+      <button class="mrt-btn" id="right-btn"></button>
     </section>
 
     <section class="attraction-section">
