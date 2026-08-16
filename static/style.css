@@ -133,7 +133,7 @@ a {
 
 .category-popup {
   position: absolute;
-  top: 100%;
+  top: calc(100% + 5px);
   left: 0;
   width: 320px; /* 不是相對 */
   background-color: var(--white);
@@ -145,6 +145,8 @@ a {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 15px var(--space-sm);
+
+  color: var(--black);
 }
 
 .category-item {
