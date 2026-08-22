@@ -4,10 +4,8 @@ from typing import Optional
 import mysql.connector
 from database import get_db_connection
 from models import *
-from fastapi.staticfiles import StaticFiles
 
 app=FastAPI()
-app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Static Pages (Never Modify Code in this Block)
 @app.get("/", include_in_schema=False)
