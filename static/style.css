@@ -364,25 +364,25 @@ a {
 .prev-btn { left: 10px; }
 .next-btn { right: 10px; }
 
-.dots-container {
+.indicators-container {
   position: absolute;
-  bottom: 15px;
+  bottom: 10px;
   width: 100%;
   display: flex;
   justify-content: center;
-  gap: 10px;
-  z-index: 2;
+  gap: 5px;
+  padding: 0 10px;
+  z-index: 99;
 }
 
-.dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: var(--white);
-  border: 1px solid var(--gray-70);
+.indicator {
+  flex: 1;
+  height: 6px;
+  border-radius: 2px;
+  background-color: var(--gray-20);
   cursor: pointer;
 }
-.dot.active { background: var(--gray-70); }
+.indicator.active { background-color: var(--gray-70); }
 
 .booking-panel {
   flex: 1;

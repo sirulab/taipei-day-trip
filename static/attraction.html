@@ -24,7 +24,7 @@
         <div class="slides-wrapper" id="slides-wrapper"></div>
         <button class="slide-btn prev-btn" id="prev-btn">‹</button>
         <button class="slide-btn next-btn" id="next-btn">›</button>
-        <div class="slide-container" id="slide-container"></div>
+        <div class="indicators-container" id="indicators-container"></div>
       </div>
 
       <div class="booking-panel">
@@ -68,7 +68,7 @@
     <p>COPYRIGHT 2021 台北一日遊</p>
   </footer>
 
-  <Script>
+  <script>
     document.addEventListener("DOMContentLoaded", () => {
     const pathname = window.location.pathname;
     const attractionId = pathname.split('/').pop();
@@ -102,7 +102,41 @@
       morningRadio.addEventListener('change', () => priceDisplay.textContent = '新台幣 2000 元');
       afternoonRadio.addEventListener('change', () => priceDisplay.textContent = '新台幣 2500 元');
 
+    function initSlideshow(images) {
+    if(!images || images.length === 0) return;
+    
+    const wrapper = document.getElementById('slides-wrapper');
+    const indicatorsContainer = document.getElementById('indicators-container');
+    let currentIndex = 0;
+
+    images.forEach((imgUrl, index) => {
+      const img = document.createElement('img');
+      img.src = imgUrl;
+      wrapper.appendChild(img);
+
+      const indicator = document.createElement('div');
+      indicator.className = `indicator ${index === 0 ? 'active' : ''}`;
+      indicator.addEventListener('click', () => goToSlide(index));
+      indicatorsContainer.appendChild(indicator);
     });
-  </Script>
+
+    const indicators = document.querySelectorAll('.indicator');
+
+    function goToSlide(index) {
+      if (index < 0) index = images.length - 1;
+      if (index >= images.length) index = 0;
+      
+      currentIndex = index;
+      wrapper.style.transform = `translateX(-${currentIndex * 100}%)`;
+      
+      indicators.forEach(d => d.classList.remove('active'));
+      indicators[currentIndex].classList.add('active');
+    }
+
+    document.getElementById('prev-btn').addEventListener('click', () => goToSlide(currentIndex - 1));
+    document.getElementById('next-btn').addEventListener('click', () => goToSlide(currentIndex + 1));
+    }
+});
+  </script>
 </body>
 </html>
