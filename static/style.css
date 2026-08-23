@@ -323,12 +323,12 @@ a {
   display: flex;
   gap: var(--space-xl);
   margin-bottom: var(--space-2xl);
+  height: 400px;
 }
 
 .slideshow-container {
   flex: 1;
   position: relative;
-  height: 400px;
   border-radius: 5px;
   overflow: hidden;
   background-color: var(--gray-20);
@@ -400,15 +400,15 @@ a {
   font-family: "Noto Sans TC", sans-serif;
   padding: 5px 10px;
   border: none;
-  height: 35px;
+  height: 30px;
   font-size: var(--text-content);
   color: var(--black);
   cursor: pointer;
   outline: none;
 }
 
-.attr-name { font-size: var(--text-h3); color: var(--gray-70); margin-bottom: 10px; }
-.attr-cat-mrt { font-size: var(--text-content); color: var(--gray-50); margin-bottom: var(--space-lg); }
+.attr-name { font-size: var(--text-h3); color: var(--gray-70); margin-bottom: var(--space-sm); }
+.attr-cat-mrt { font-size: var(--text-content); color: var(--gray-50); margin-bottom: var(--space-sm); }
 
 .booking-form {
   background-color: var(--gray-20);
@@ -420,15 +420,15 @@ a {
 
 .booking-form > p {
   font-size: var(--text-content);
-  margin-bottom: var(--space-lg);
+  margin-bottom: var(--space-sm);
 }
 
 .booking-form h3 { 
   font-size: var(--text-content); 
-  margin-bottom: var(--space-lg) }
+  margin-bottom: var(--space-sm) }
 
 .form-row { 
-  margin-bottom: var(--space-lg);
+  margin-bottom: var(--space-sm);
   display: flex; 
   align-items: center; gap: 10px;}
 
@@ -453,6 +453,8 @@ a {
 .attr-desc { line-height: 1.6; }
 
 @media (max-width: 768px) {
-  .attraction-top { flex-direction: column; }
+  .attraction-top { 
+    flex-direction: column;
+    height: auto; }
   .slideshow-container { height: 350px; }
 }
