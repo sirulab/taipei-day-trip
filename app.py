@@ -5,6 +5,7 @@ import mysql.connector
 from database import get_db_connection
 from models import *
 from fastapi.staticfiles import StaticFiles
+import jwt
 
 app=FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -190,3 +191,33 @@ def get_mrts():
         if conn and conn.is_connected():
             cursor.close()
             conn.close()
+
+def create_token(username: str, password: str, expires: timedelta):
+    key = "secret"
+    encoded = jwt.encode({"password": password}, key, algorithm="HS256")
+def 
+    data = jwt.decode(encoded, key, algorithms="HS256")
+
+
+@app.post("api/sign_in")
+def sign_in(Request):
+# 收到之後 拿帳號相等的資料出來 decode密碼 比對
+# 發一個token response到header裡
+    conn = get_db_connection()
+    cursor =  conn.cursor()
+    sql = """
+        SELECT * FROM ???
+        where 
+        """
+    cursor.execute(sql)
+    data = cursor.fetchone() # 收到什麼格式{}
+    # if 
+    if not user == data.user:
+        return False
+    if not password == 
+
+
+@app.post("api/sign_up")
+def sign_up(Request):
+
+# 收到之後 密碼encode 放進資料庫
