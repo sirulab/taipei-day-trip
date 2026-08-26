@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from typing import List, Optional
 
 ###
@@ -21,3 +21,10 @@ class Attraction(BaseModel):
     lat: float
     lng: float
     images: List[str]
+
+class User(BaseModel):
+    # id: Optional[int] = None
+    name: Optional[str] = None # 登入時只需要email，不需要name
+    email: EmailStr
+    hash_password: str
+    # role: str = Field(default="default", max_length=20)

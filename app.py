@@ -6,9 +6,15 @@ from database import get_db_connection
 from models import *
 from fastapi.staticfiles import StaticFiles
 import jwt
+from datetime import datetime, timedelta
+from fastapi import Header
 
 app=FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+SECRET_KEY = 'secret'
+ALGORITHM = 'HS256'
+bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
 # Static Pages (Never Modify Code in this Block)
 @app.get("/", include_in_schema=False)
@@ -191,33 +197,85 @@ def get_mrts():
         if conn and conn.is_connected():
             cursor.close()
             conn.close()
+@app.post("/api/sign_up")
+def sign_up(user: User):
+    conn = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
 
-def create_token(username: str, password: str, expires: timedelta):
-    key = "secret"
-    encoded = jwt.encode({"password": password}, key, algorithm="HS256")
-def 
-    data = jwt.decode(encoded, key, algorithms="HS256")
+        hashed_password = bcrypt_context.hash(user.password)
+        sql_insert = "INSERT INTO user (name, email, password) VALUES (%s, %s, %s)"
+        cursor.execute(sql_insert, (user.name, user.email, hashed_password))
+        conn.commit()
+        
+        return {"ok": True}
+        
+    except Exception as e:
+        if conn: conn.rollback()
+        return JSONResponse(status_code=500, content={"error": True, "message": "伺服器內部錯誤"})
+    finally:
+        if conn and conn.is_connected():
+            cursor.close()
+            conn.close()
 
+@app.put("/api/sign_in")
+def sign_in(user: User):
+    conn = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        
+        sql = "SELECT id, name, email, password FROM user WHERE email = %s"
+        cursor.execute(sql, (user.email,))
+        db_user = cursor.fetchone()
+        
+        if not db_user or not bcrypt_context.verify(user.password, db_user["password"]):
+            return JSONResponse(status_code=400, content={"error": True, "message": ""})
+        
+        payload = {
+            "id": db_user["id"],
+            "name": db_user["name"],
+            "email": db_user["email"],
+            "exp": datetime.utcnow() + timedelta(days=7)
+        }
+        token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+        
+        return {"token": token}
+        
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": True, "message": "伺服器內部錯誤"})
+    finally:
+        if conn and conn.is_connected():
+            cursor.close()
+            conn.close()
 
-@app.post("api/sign_in")
-def sign_in(Request):
-# 收到之後 拿帳號相等的資料出來 decode密碼 比對
-# 發一個token response到header裡
-    conn = get_db_connection()
-    cursor =  conn.cursor()
-    sql = """
-        SELECT * FROM ???
-        where 
-        """
-    cursor.execute(sql)
-    data = cursor.fetchone() # 收到什麼格式{}
-    # if 
-    if not user == data.user:
-        return False
-    if not password == 
+@app.delete("/api/sign_out")
+def sign_out():
+    return {"ok": True}
 
+def verify_token(authorization: str):
+    if not authorization or not authorization.startswith("Bearer "):
+        return None
+    
+    token = authorization.split(" ")[1]
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return payload 
+    except:
+        return None
 
-@app.post("api/sign_up")
-def sign_up(Request):
-
-# 收到之後 密碼encode 放進資料庫
+@app.get("/api/user/auth")
+def get_current_user(authorization: Optional[str] = Header(None)):
+    user_payload = verify_token(authorization)
+    
+    if not user_payload:
+        return {"data": None}
+    
+    return {
+        "data": {
+            "id": user_payload["id"],
+            "name": user_payload["name"],
+            "email": user_payload["email"]
+        }
+    }
