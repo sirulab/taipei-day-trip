@@ -74,10 +74,19 @@ a {
     gap: var(--space-lg);
 }
 
-.navbar-links a {
+.navbar-links a,
+#nav-auth-btn {
   font-size: var(--text-content);
   color: var(--gray-70);
   font-weight: normal;
+}
+
+#nav-auth-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  cursor: pointer;
 }
 
 .hero {
