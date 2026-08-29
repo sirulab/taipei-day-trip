@@ -42,6 +42,7 @@ def get_images(cursor, attraction_ids: list):
         images_map[att_id].append(url)
     return images_map
 
+
 @app.get("/api/attractions", 
     tags=["Attraction"],
     summary="取得景點資料列表")
@@ -111,6 +112,7 @@ def get_attractions(
             cursor.close()
             conn.close()
 
+
 @app.get("/api/attraction/{attractionId}",
     tags=["Attraction"],
     summary="根據景點編號取得景點資料")
@@ -147,6 +149,7 @@ def get_attraction_by_id(attractionId: int = Path(...)):
             cursor.close()
             conn.close()
 
+
 @app.get("/api/categories",
     tags=["Attraction Category"],
     summary="取得景點分類名稱列表")
@@ -169,6 +172,7 @@ def get_categories():
         if conn and conn.is_connected():
             cursor.close()
             conn.close()
+
 
 @app.get("/api/mrts",
     tags=["MRT Station"],
@@ -197,6 +201,8 @@ def get_mrts():
         if conn and conn.is_connected():
             cursor.close()
             conn.close()
+
+
 @app.post("/api/sign_up")
 def sign_up(user: User):
     conn = None
@@ -218,6 +224,7 @@ def sign_up(user: User):
         if conn and conn.is_connected():
             cursor.close()
             conn.close()
+
 
 @app.put("/api/sign_in")
 def sign_in(user: User):
@@ -250,22 +257,8 @@ def sign_in(user: User):
             cursor.close()
             conn.close()
 
-@app.delete("/api/sign_out")
-def sign_out():
-    return {"ok": True}
 
-def verify_token(authorization: str):
-    if not authorization or not authorization.startswith("Bearer "):
-        return None
-    
-    token = authorization.split(" ")[1]
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        return payload 
-    except:
-        return None
-
-@app.get("/api/user/auth")
+@app.get("/api/auth")
 def get_current_user(authorization: Optional[str] = Header(None)):
     user_payload = verify_token(authorization)
     
