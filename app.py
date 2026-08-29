@@ -6,6 +6,7 @@ from database import get_db_connection
 from models import *
 from fastapi.staticfiles import StaticFiles
 import jwt
+from passlib.context import CryptContext
 from datetime import datetime, timedelta
 from fastapi import Header
 
@@ -201,7 +202,16 @@ def get_mrts():
         if conn and conn.is_connected():
             cursor.close()
             conn.close()
-
+            
+def verify_token(authorization: Optional[str]):
+    if not authorization or not authorization.startswith("Bearer "):
+        return None
+    token = authorization.split(" ")[1]
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return payload
+    except Exception:
+        return None
 
 @app.post("/api/sign_up")
 def sign_up(user: User):
@@ -210,8 +220,8 @@ def sign_up(user: User):
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        hashed_password = bcrypt_context.hash(user.password)
-        sql_insert = "INSERT INTO user (name, email, password) VALUES (%s, %s, %s)"
+        hashed_password = bcrypt_context.hash(user.hashed_password)
+        sql_insert = "INSERT INTO user (name, email, hashed_password) VALUES (%s, %s, %s)"
         cursor.execute(sql_insert, (user.name, user.email, hashed_password))
         conn.commit()
         
@@ -219,6 +229,7 @@ def sign_up(user: User):
         
     except Exception as e:
         if conn: conn.rollback()
+        print(e)
         return JSONResponse(status_code=500, content={"error": True, "message": "伺服器內部錯誤"})
     finally:
         if conn and conn.is_connected():
@@ -226,19 +237,19 @@ def sign_up(user: User):
             conn.close()
 
 
-@app.put("/api/sign_in")
+@app.post("/api/sign_in")
 def sign_in(user: User):
     conn = None
     try:
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
         
-        sql = "SELECT id, name, email, password FROM user WHERE email = %s"
+        sql = "SELECT id, name, email, hashed_password FROM user WHERE email = %s"
         cursor.execute(sql, (user.email,))
         db_user = cursor.fetchone()
         
-        if not db_user or not bcrypt_context.verify(user.password, db_user["password"]):
-            return JSONResponse(status_code=400, content={"error": True, "message": ""})
+        if not db_user or not bcrypt_context.verify(user.hashed_password, db_user["hashed_password"]):
+            return JSONResponse(status_code=400, content={"error": True, "message": "帳號或密碼不正確"})
         
         payload = {
             "id": db_user["id"],
@@ -251,6 +262,7 @@ def sign_in(user: User):
         return {"token": token}
         
     except Exception as e:
+        print(e)
         return JSONResponse(status_code=500, content={"error": True, "message": "伺服器內部錯誤"})
     finally:
         if conn and conn.is_connected():

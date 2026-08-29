@@ -14,8 +14,6 @@
       <ul class="navbar-links">
         <a href="#">預定行程</a>
         <button id="nav-auth-btn">登入/註冊</button>
-        <div id="auth-popup" style="display: none;"></div>
-        <div id="auth-overlay" style="display: none;"></div>
       </ul>
     </div>
   </nav>
@@ -79,6 +77,9 @@
   <footer class="site-footer">
     <p>COPYRIGHT 2021 台北一日遊</p>
   </footer>
+
+  <div id="auth-popup" style="display: none;"></div>
+  <div id="auth-overlay" style="display: none;"></div>
 
   <script>
     const API_URL = '/api/attractions';
@@ -262,19 +263,20 @@
     const authOverlay = document.getElementById('auth-overlay'); // 遮罩
 
     const signInTemplate = `
-      <div class="modal-content">
+      <div class="auth-popup">
         <h2>登入會員帳號</h2>
         <form id="signin-form">
           <input type="email" name="email" placeholder="輸入電子信箱" required>
           <input type="password" name="password" placeholder="輸入密碼" required>
           <button type="submit">登入帳戶</button>
         </form>
+        <div id="auth-message" style="text-align: center; margin-top: 10px; color: red;"></div>
         <p class="switch-form-text" id="go-to-signup" style="cursor: pointer;">還沒有帳戶?點此註冊</p>
       </div>
     `;
 
     const signUpTemplate = `
-      <div class="modal-content">
+      <div class="auth-popup">
         <h2>註冊會員帳號</h2>
         <form id="signup-form">
           <input type="text" name="name" placeholder="輸入姓名" required>
@@ -282,6 +284,7 @@
           <input type="password" name="password" placeholder="輸入密碼" required>
           <button type="submit">註冊新帳戶</button>
         </form>
+        <div id="auth-message" style="text-align: center; margin-top: 10px;"></div>
         <p class="switch-form-text" id="go-to-signin" style="cursor: pointer;">已經有帳戶了?點此登入</p>
       </div>
     `;
@@ -317,10 +320,11 @@
       const form = event.target;
       const email = form.email.value;
       const password = form.password.value;
+      const msgBox = document.getElementById('auth-message');
 
       try {
         const response = await fetch('/api/sign_in', {
-          method: 'PUT',
+          method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password })
         });
@@ -328,9 +332,14 @@
 
         if (response.ok && result.token) {
           localStorage.setItem('token', result.token);
-          closePopup();
-          checkAuthStatus(); 
+          window.location.reload();
+        } else {
+        msgBox.style.color = 'red';
+        msgBox.textContent = result.message;
         }
+      } catch (error) {
+        console.error('登入發生錯誤:', error);
+      }
     }
 
     async function handleSignUp(event) {
@@ -339,6 +348,7 @@
       const name = form.name.value;
       const email = form.email.value;
       const password = form.password.value;
+      const msgBox = document.getElementById('auth-message');
 
       try {
         const response = await fetch('/api/sign_up', {
@@ -349,15 +359,22 @@
         const result = await response.json();
 
         if (response.ok && result.ok) {
-          alert('');
-          renderSignIn();
+          //alert('註冊成功！請重新登入。');
+          //renderSignIn();
+          msgBox.style.color = 'green';
+          msgBox.textContent = '註冊成功！請重新登入。';
+        } else {
+          msgBox.style.color = 'red';
+          msgBox.textContent = result.message;
         }
+      } catch (error) {
+        console.error('註冊發生錯誤:', error);
+      }
     }
 
     async function handleSignOut() {
       localStorage.removeItem('token');
-      await fetch('/api/sign_out', { method: 'DELETE' });
-      checkAuthStatus();
+      window.location.reload();
     }
 
     async function checkAuthStatus() {
@@ -370,7 +387,7 @@
       }
 
       try {
-        const response = await fetch('/api/user/auth', {
+        const response = await fetch('/api/auth', {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`
@@ -388,6 +405,9 @@
         }
       } catch (error) {
         console.error('驗證狀態錯誤:', error);
+        localStorage.removeItem('token');
+        navAuthBtn.textContent = '登入/註冊';
+        navAuthBtn.onclick = openPopup;
       }
     }
 

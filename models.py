@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from typing import List, Optional
 
 ###
@@ -26,5 +26,5 @@ class User(BaseModel):
     # id: Optional[int] = None
     name: Optional[str] = None # 登入時只需要email，不需要name
     email: EmailStr
-    hash_password: str
+    hashed_password: str = Field(default="default", max_length=70)
     # role: str = Field(default="default", max_length=20)
