@@ -489,78 +489,82 @@ input[type="radio"]:checked {
   width: 100vw;
   height: 100vh;
   background-color: rgba(0, 0, 0, 0.25);
-  z-index: 998; /* 確保在最上層 */
+  z-index: 998;
 }
 
-/* 彈窗主體：絕對置中 */
 #auth-popup {
   position: fixed;
-  top: 80px; /* 距離頂部的距離，依照你的設計稿調整 */
+  top: 80px; 
   left: 50%;
   transform: translateX(-50%);
   width: 340px;
-  background-color: #FFFFFF;
+  background-color: var(--white);
   border-radius: 6px;
   box-shadow: 0px 4px 60px #AAAAAA;
-  z-index: 999; /* 比遮罩更高 */
+  z-index: 999;
   overflow: hidden;
 }
 
-/* 彈窗頂部裝飾條 (如果你的設計稿有這條藍綠色的線) */
 .decorator-bar {
   width: 100%;
   height: 10px;
   background: linear-gradient(270deg, #337788 0%, #66AABB 100%);
 }
 
-/* 彈窗內部間距 */
 .auth-popup-content {
-  padding: 15px 15px 15px 15px;
+  padding: 25px 25px 20px 25px;
   position: relative;
 }
 
-/* 關閉按鈕 (右上角 X) */
 .close-btn {
   position: absolute;
   top: 15px;
-  right: 15px;
+  right: 17px;
   cursor: pointer;
-  font-size: 16px;
-  color: #666666;
+  font-size: 28px;
+  color: var(--gray-70);
 }
 
-/* 標題與表單排版微調 */
 .auth-popup-content h2 {
   text-align: center;
-  font-size: 24px;
+  font-size: var(--text-h3);
   font-weight: 700;
-  color: #666666;
-  margin-bottom: 15px;
+  color: var(--gray-70);
+  margin-bottom: 20px;
 }
 
 .auth-popup-content input {
   width: 100%;
   box-sizing: border-box;
-  padding: 15px;
-  margin-bottom: 10px;
-  border: 1px solid #CCCCCC;
+  padding: 12px 15px;
+  margin-bottom: 15px;
+  border: 1px solid var(--gray-20);
   border-radius: 5px;
+  font-size: var(--text-content);
+  color: var(--black);
+  outline: none;
+}
+
+.auth-popup-content input::placeholder {
+  color: var(--gray-50);
 }
 
 .auth-popup-content button {
   width: 100%;
-  padding: 15px;
-  background-color: #448899;
-  color: white;
+  padding: 12px;
+  background-color: var(--cyan-70);
+  color: var(--white);
   border: none;
   border-radius: 5px;
-  font-size: 19px;
+  font-size: var(--text-button);
   cursor: pointer;
+  margin-top: 5px;
+  margin-bottom: 10px;
 }
 
 .switch-form-text {
   text-align: center;
-  margin-top: 10px;
-  color: #666666;
-  cursor: pointer;
+  margin-top: 15px;
+  color: var(--gray-70);
+  font-size: var(--text-content);
 }

@@ -263,20 +263,24 @@
     const authOverlay = document.getElementById('auth-overlay'); // 遮罩
 
     const signInTemplate = `
-      <div class="auth-popup">
+      <div class="decorator-bar"></div>
+      <div class="auth-popup-content">
+      <span class="close-btn" onclick="closePopup()">&times;</span>
         <h2>登入會員帳號</h2>
         <form id="signin-form">
           <input type="email" name="email" placeholder="輸入電子信箱" required>
           <input type="password" name="password" placeholder="輸入密碼" required>
           <button type="submit">登入帳戶</button>
         </form>
-        <div id="auth-message" style="text-align: center; margin-top: 10px; color: red;"></div>
+        <div id="auth-message" style="text-align: center; margin-top: 10px; font-size: 16px;"></div>
         <p class="switch-form-text" id="go-to-signup" style="cursor: pointer;">還沒有帳戶?點此註冊</p>
       </div>
     `;
 
     const signUpTemplate = `
-      <div class="auth-popup">
+      <div class="decorator-bar"></div>
+      <div class="auth-popup-content">
+      <span class="close-btn" onclick="closePopup()">&times;</span>
         <h2>註冊會員帳號</h2>
         <form id="signup-form">
           <input type="text" name="name" placeholder="輸入姓名" required>
@@ -284,7 +288,7 @@
           <input type="password" name="password" placeholder="輸入密碼" required>
           <button type="submit">註冊新帳戶</button>
         </form>
-        <div id="auth-message" style="text-align: center; margin-top: 10px;"></div>
+        <div id="auth-message" style="text-align: center; margin-top: 10px; font-size: 16px;"></div>
         <p class="switch-form-text" id="go-to-signin" style="cursor: pointer;">已經有帳戶了?點此登入</p>
       </div>
     `;
