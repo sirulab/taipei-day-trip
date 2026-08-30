@@ -214,19 +214,22 @@ def verify_token(authorization: Optional[str]):
         return None
 
 @app.post("/api/sign_up")
-def sign_up(user: User):
+def sign_up(user: UserSignUp):
     conn = None
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        hashed_password = bcrypt_context.hash(user.hashed_password)
+        hashed_password = bcrypt_context.hash(user.password)
         sql_insert = "INSERT INTO user (name, email, hashed_password) VALUES (%s, %s, %s)"
         cursor.execute(sql_insert, (user.name, user.email, hashed_password))
         conn.commit()
         
         return {"ok": True}
         
+    except mysql.connector.errors.IntegrityError:
+        if conn: conn.rollback()
+        return JSONResponse(status_code=400, content={"error": True, "message": "此電子郵件已被註冊"})
     except Exception as e:
         if conn: conn.rollback()
         print(e)
@@ -238,7 +241,7 @@ def sign_up(user: User):
 
 
 @app.post("/api/sign_in")
-def sign_in(user: User):
+def sign_in(user: UserSignIn):
     conn = None
     try:
         conn = get_db_connection()
@@ -248,7 +251,7 @@ def sign_in(user: User):
         cursor.execute(sql, (user.email,))
         db_user = cursor.fetchone()
         
-        if not db_user or not bcrypt_context.verify(user.hashed_password, db_user["hashed_password"]):
+        if not db_user or not bcrypt_context.verify(user.password, db_user["hashed_password"]):
             return JSONResponse(status_code=400, content={"error": True, "message": "帳號或密碼不正確"})
         
         payload = {
