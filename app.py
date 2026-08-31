@@ -5,9 +5,17 @@ import mysql.connector
 from database import get_db_connection
 from models import *
 from fastapi.staticfiles import StaticFiles
+import jwt
+from passlib.context import CryptContext
+from datetime import datetime, timedelta
+from fastapi import Header
 
 app=FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+SECRET_KEY = 'secret'
+ALGORITHM = 'HS256'
+bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
 # Static Pages (Never Modify Code in this Block)
 @app.get("/", include_in_schema=False)
@@ -34,6 +42,7 @@ def get_images(cursor, attraction_ids: list):
     for att_id, url in cursor.fetchall():
         images_map[att_id].append(url)
     return images_map
+
 
 @app.get("/api/attractions", 
     tags=["Attraction"],
@@ -104,6 +113,7 @@ def get_attractions(
             cursor.close()
             conn.close()
 
+
 @app.get("/api/attraction/{attractionId}",
     tags=["Attraction"],
     summary="根據景點編號取得景點資料")
@@ -140,6 +150,7 @@ def get_attraction_by_id(attractionId: int = Path(...)):
             cursor.close()
             conn.close()
 
+
 @app.get("/api/categories",
     tags=["Attraction Category"],
     summary="取得景點分類名稱列表")
@@ -162,6 +173,7 @@ def get_categories():
         if conn and conn.is_connected():
             cursor.close()
             conn.close()
+
 
 @app.get("/api/mrts",
     tags=["MRT Station"],
@@ -190,3 +202,88 @@ def get_mrts():
         if conn and conn.is_connected():
             cursor.close()
             conn.close()
+            
+def verify_token(authorization: Optional[str]):
+    if not authorization or not authorization.startswith("Bearer "):
+        return None
+    token = authorization.split(" ")[1]
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return payload
+    except Exception:
+        return None
+
+@app.post("/api/sign_up")
+def sign_up(user: UserSignUp):
+    conn = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        hashed_password = bcrypt_context.hash(user.password)
+        sql_insert = "INSERT INTO user (name, email, hashed_password) VALUES (%s, %s, %s)"
+        cursor.execute(sql_insert, (user.name, user.email, hashed_password))
+        conn.commit()
+        
+        return {"ok": True}
+        
+    except mysql.connector.errors.IntegrityError:
+        if conn: conn.rollback()
+        return JSONResponse(status_code=400, content={"error": True, "message": "此電子郵件已被註冊"})
+    except Exception as e:
+        if conn: conn.rollback()
+        print(e)
+        return JSONResponse(status_code=500, content={"error": True, "message": "伺服器內部錯誤"})
+    finally:
+        if conn and conn.is_connected():
+            cursor.close()
+            conn.close()
+
+
+@app.post("/api/sign_in")
+def sign_in(user: UserSignIn):
+    conn = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        
+        sql = "SELECT id, name, email, hashed_password FROM user WHERE email = %s"
+        cursor.execute(sql, (user.email,))
+        db_user = cursor.fetchone()
+        
+        if not db_user or not bcrypt_context.verify(user.password, db_user["hashed_password"]):
+            return JSONResponse(status_code=400, content={"error": True, "message": "帳號或密碼不正確"})
+        
+        payload = {
+            "id": db_user["id"],
+            "name": db_user["name"],
+            "email": db_user["email"],
+            "exp": datetime.utcnow() + timedelta(days=7)
+        }
+        token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+        
+        return {"token": token}
+        
+    except Exception as e:
+        print(e)
+        return JSONResponse(status_code=500, content={"error": True, "message": "伺服器內部錯誤"})
+    finally:
+        if conn and conn.is_connected():
+            cursor.close()
+            conn.close()
+
+
+@app.get("/api/auth")
+def get_current_user(authorization: Optional[str] = Header(None)):
+    user_payload = verify_token(authorization)
+    
+    if not user_payload:
+        return {"data": None}
+    
+    return {
+        "data": {
+            "id": user_payload["id"],
+            "name": user_payload["name"],
+            "email": user_payload["email"]
+        }
+    }

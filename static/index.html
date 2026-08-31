@@ -8,15 +8,15 @@
 </head>
 <body>
 
-  <nav class="navbar">
+  <!-- <nav class="navbar">
     <div class="navbar-section">
       <a href="/" class="logo">台北一日遊</a>
       <ul class="navbar-links">
         <a href="#">預定行程</a>
-        <a href="#">登入/註冊</a>
+        <button id="nav-auth-btn">登入/註冊</button>
       </ul>
     </div>
-  </nav>
+  </nav> -->
   
   <div class="hero">
     <div class="hero-section">
@@ -77,6 +77,11 @@
   <footer class="site-footer">
     <p>COPYRIGHT 2021 台北一日遊</p>
   </footer>
+
+  <!-- <div id="auth-popup" style="display: none;"></div>
+  <div id="auth-overlay" style="display: none;"></div> -->
+
+  <script src="/static/nav.js"></script>
 
   <script>
     const API_URL = '/api/attractions';
@@ -251,6 +256,7 @@
       }
 
     fetchMrts();
-  </script>
+
+</script>
 </body>
 </html>

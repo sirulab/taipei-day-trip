@@ -48,6 +48,7 @@ a {
   position: sticky;
   top: 0;
   z-index: 99;
+  border-bottom: 1px solid var(--gray-20);
 }
 
 .navbar-section {
@@ -73,10 +74,19 @@ a {
     gap: var(--space-lg);
 }
 
-.navbar-links a {
+.navbar-links a,
+#nav-auth-btn {
   font-size: var(--text-content);
   color: var(--gray-70);
   font-weight: normal;
+}
+
+#nav-auth-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  cursor: pointer;
 }
 
 .hero {
@@ -323,12 +333,12 @@ a {
   display: flex;
   gap: var(--space-xl);
   margin-bottom: var(--space-2xl);
+  height: 400px;
 }
 
 .slideshow-container {
   flex: 1;
   position: relative;
-  height: 400px;
   border-radius: 5px;
   overflow: hidden;
   background-color: var(--gray-20);
@@ -400,15 +410,29 @@ a {
   font-family: "Noto Sans TC", sans-serif;
   padding: 5px 10px;
   border: none;
-  height: 35px;
+  height: 30px;
   font-size: var(--text-content);
   color: var(--black);
   cursor: pointer;
   outline: none;
 }
 
-.attr-name { font-size: var(--text-h3); color: var(--gray-70); margin-bottom: 10px; }
-.attr-cat-mrt { font-size: var(--text-content); color: var(--gray-50); margin-bottom: var(--space-lg); }
+input[type="radio"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px; 
+  height: 20px;
+  border-radius: 50%;
+  background-color: var(--white);
+  border: 3px solid var(--white);
+  cursor: pointer;
+}
+
+input[type="radio"]:checked {
+  background-color: var(--cyan-70);
+}
+.attr-name { font-size: var(--text-h3); color: var(--gray-70); margin-bottom: var(--space-sm); }
+.attr-cat-mrt { font-size: var(--text-content); color: var(--gray-50); margin-bottom: var(--space-sm); }
 
 .booking-form {
   background-color: var(--gray-20);
@@ -420,15 +444,15 @@ a {
 
 .booking-form > p {
   font-size: var(--text-content);
-  margin-bottom: var(--space-lg);
+  margin-bottom: var(--space-sm);
 }
 
 .booking-form h3 { 
   font-size: var(--text-content); 
-  margin-bottom: var(--space-lg) }
+  margin-bottom: var(--space-sm) }
 
 .form-row { 
-  margin-bottom: var(--space-lg);
+  margin-bottom: var(--space-sm);
   display: flex; 
   align-items: center; gap: 10px;}
 
@@ -453,6 +477,103 @@ a {
 .attr-desc { line-height: 1.6; }
 
 @media (max-width: 768px) {
-  .attraction-top { flex-direction: column; }
-  .slideshow-container { height: 350px; }
+  .attraction-main {
+    margin-top: 0;
+  }
+  .attraction-top { 
+    flex-direction: column;
+    height: auto; }
+  .slideshow-container { 
+    height: 350px; 
+    margin-left: calc(-1 * var(--space-lg));
+    margin-right: calc(-1 * var(--space-lg));
+    border-radius: 0;
+  }
+}
+
+#auth-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.25);
+  z-index: 998;
+}
+
+#auth-popup {
+  position: fixed;
+  top: 80px; 
+  left: 50%;
+  transform: translateX(-50%);
+  width: 340px;
+  background-color: var(--white);
+  border-radius: 6px;
+  box-shadow: 0px 4px 60px #AAAAAA;
+  z-index: 999;
+  overflow: hidden;
+}
+
+.decorator-bar {
+  width: 100%;
+  height: 10px;
+  background: linear-gradient(270deg, #337788 0%, #66AABB 100%);
+}
+
+.auth-popup-content {
+  padding: 25px 25px 20px 25px;
+  position: relative;
+}
+
+.close-btn {
+  position: absolute;
+  top: 15px;
+  right: 17px;
+  cursor: pointer;
+  font-size: 28px;
+  color: var(--gray-70);
+}
+
+.auth-popup-content h2 {
+  text-align: center;
+  font-size: var(--text-h3);
+  font-weight: 700;
+  color: var(--gray-70);
+  margin-bottom: 20px;
+}
+
+.auth-popup-content input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 15px;
+  margin-bottom: 15px;
+  border: 1px solid var(--gray-20);
+  border-radius: 5px;
+  font-size: var(--text-content);
+  color: var(--black);
+  outline: none;
+}
+
+.auth-popup-content input::placeholder {
+  color: var(--gray-50);
+}
+
+.auth-popup-content button {
+  width: 100%;
+  padding: 12px;
+  background-color: var(--cyan-70);
+  color: var(--white);
+  border: none;
+  border-radius: 5px;
+  font-size: var(--text-button);
+  cursor: pointer;
+  margin-top: 5px;
+  margin-bottom: 10px;
+}
+
+.switch-form-text {
+  text-align: center;
+  margin-top: 15px;
+  color: var(--gray-70);
+  font-size: var(--text-content);
 }
