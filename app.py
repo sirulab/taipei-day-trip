@@ -287,3 +287,66 @@ def get_current_user(authorization: Optional[str] = Header(None)):
             "email": user_payload["email"]
         }
     }
+@app.post("/api/booking")
+def create_booking(booking):
+    conn = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        sql_insert = """
+        INSERT INTO booking
+        (attractionId, date, time, price, email) 
+        VALUES 
+        (%s, %s, %s, %s, %s)
+        """
+        cursor.execute(sql_insert, (user.name, user.email, hashed_password))
+        conn.commit()
+        
+        return {"ok": True}
+    
+        if not :
+            return JSONResponse(status_code=400, content={"error": True, "message": "建立失敗，輸入不正確或其他原因"})
+
+        if not token:
+            return JSONResponse(status_code=403, content={"error": True, "message": "未登入系統，拒絕存取"})
+
+    except Exception as e:
+        if conn: conn.rollback()
+        print(e)
+        return JSONResponse(status_code=500, content={"error": True, "message": "伺服器內部錯誤"})
+    finally:
+        if conn and conn.is_connected():
+            cursor.close()
+            conn.close()
+
+@app.get("/api/booking")
+def read_booking():
+    try:
+    
+        return {
+            "data": {
+                "attraction": {
+                "id": 10,
+                "name": "平安鐘",
+                "address": "臺北市大安區忠孝東路 4 段",
+                "image": "https://yourdomain.com/images/attraction/10.jpg"
+                },
+                "date": "2022-01-31",
+                "time": "afternoon",
+                "price": 2500
+            }
+        }
+    except Exception as e:
+        print(e)
+        return JSONResponse(status_code=403, content={"error": True, "message": "未登入系統，拒絕存取"}) # status code
+    finally:
+        if conn and conn.is_connected():
+            cursor.close()
+            conn.close()
+
+
+            
+
+
+@app.delete("/api/booking")
+def delete_booking():
