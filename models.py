@@ -46,3 +46,9 @@ class Booking(BaseModel):
     time: Literal["上半天", "下半天"] 
     price: Literal['新台幣 2000 元', '新台幣 2500 元']
     email: EmailStr
+
+class BookingRequest(BaseModel):
+    attractionId: int
+    date: date 
+    time: Literal["morning", "afternoon"] 
+    price: Literal[2000, 2500]
