@@ -3,9 +3,177 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Booking</title>
+  <title>台北一日遊</title>
+  <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
+
+  <!-- <nav class="navbar">
+    <div class="navbar-section">
+      <a href="/" class="logo">台北一日遊</a>
+      <ul class="navbar-links" id="nav-links">
+        </ul>
+    </div>
+  </nav> -->
   
+  <main class="booking-main" id="booking-main" style="display: none;">
+    <section class="headline-section">
+      <h2 class="headline">您好，<span id="user-name"></span>，待預訂的行程如下：</h2>
+    </section>
+    
+    <div id="booking-content">
+      <section class="booking-info">
+        <div class="booking-image">
+          <img id="book-img" src="" alt="Attraction Image">
+        </div>
+        <div class="booking-details">
+          <h3 id="book-name">台北一日遊：載入中...</h3>
+          <p><strong>日期：</strong><span id="book-date"></span></p>
+          <p><strong>時間：</strong><span id="book-time"></span></p>
+          <p><strong>費用：</strong><span id="book-price"></span></p>
+          <p><strong>地點：</strong><span id="book-address"></span></p>
+          <button class="delete-icon" id="delete-btn" aria-label="刪除行程">🗑️</button> 
+        </div>
+      </section>
+
+      <hr class="divider">
+
+      <section class="contact-info form-section">
+        <h3>您的聯絡資訊</h3>
+        <div class="form-group">
+          <label for="contact-name">聯絡姓名：</label>
+          <input type="text" id="contact-name" required>
+        </div>
+        <div class="form-group">
+          <label for="contact-email">連絡信箱：</label>
+          <input type="email" id="contact-email" required>
+        </div>
+        <div class="form-group">
+          <label for="contact-phone">手機號碼：</label>
+          <input type="tel" id="contact-phone" required>
+        </div>
+        <p class="notice">請保持手機暢通，準時到達，導覽人員將用手機與您聯繫，務必留下正確的聯絡方式。</p>
+      </section>
+
+      <hr class="divider">
+
+      <section class="payment-info form-section">
+        <h3>信用卡付款資訊</h3>
+        <div class="form-group">
+          <label for="card-number">卡片號碼：</label>
+          <input type="text" id="card-number" placeholder="**** **** **** ****" required>
+        </div>
+        <div class="form-group">
+          <label for="card-expiry">過期時間：</label>
+          <input type="text" id="card-expiry" placeholder="MM/YY" required>
+        </div>
+        <div class="form-group">
+          <label for="card-cvv">驗證密碼：</label>
+          <input type="text" id="card-cvv" placeholder="CVV" required>
+        </div>
+      </section>
+
+      <hr class="divider">
+      
+      <section class="confirm-section">
+        <p class="total-price-text">總價：新台幣 <span id="total-price"></span> 元</p>
+        <button id="confirm-btn" class="booking-submit-btn">確認訂購並付款</button>
+      </section>
+    </div>
+    
+    <div id="no-booking" style="display: none; text-align: center; padding: 50px 0;">
+      <p>目前沒有任何待預訂的行程</p>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>COPYRIGHT 2021 台北一日遊</p>
+  </footer>
+
+  <script src="/static/nav.js"></script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        window.location.href = "/";
+        return;
+      }
+
+      try {
+        const authRes = await fetch("/api/auth", {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        const authResult = await authRes.json();
+        
+        if (!authResult.data) {
+          window.location.href = "/";
+          return;
+        }
+        
+        document.getElementById("user-name").textContent = authResult.data.name;
+        document.getElementById("contact-name").value = authResult.data.name;
+        document.getElementById("contact-email").value = authResult.data.email;
+        
+        document.getElementById("booking-main").style.display = "block";
+        
+      } catch (error) {
+        console.error("Auth Error:", error);
+        window.location.href = "/";
+        return;
+      }
+
+      try {
+        const bookingRes = await fetch("/api/booking", {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        const bookingResult = await bookingRes.json();
+
+        if (bookingResult.data) {
+          const data = bookingResult.data;
+          
+          document.getElementById("book-img").src = data.attraction.image;
+          document.getElementById("book-name").textContent = `台北一日遊：${data.attraction.name}`;
+          document.getElementById("book-date").textContent = data.date;
+          
+          const timeText = data.time === "morning" ? "早上 9 點到下午 2 點" : "下午 2 點到晚上 7 點";
+          document.getElementById("book-time").textContent = timeText;
+          
+          document.getElementById("book-price").textContent = `新台幣 ${data.price} 元`;
+          document.getElementById("book-address").textContent = data.attraction.address;
+          document.getElementById("total-price").textContent = data.price;
+          
+        } else {
+          document.getElementById("booking-content").style.display = "none";
+          document.getElementById("no-booking").style.display = "block";
+        }
+      } catch (error) {
+        console.error("Fetch Booking Error:", error);
+      }
+
+      const deleteBtn = document.getElementById("delete-btn");
+      if (deleteBtn) {
+        deleteBtn.addEventListener("click", async () => {
+          try {
+            const delRes = await fetch("/api/booking", {
+              method: "DELETE",
+              headers: { "Authorization": `Bearer ${token}` }
+            });
+            const delResult = await delRes.json();
+            
+            if (delResult.ok) {
+              window.location.reload();
+            }
+          } catch (error) {
+            console.error("Delete Booking Error:", error);
+          }
+        });
+      }
+
+      document.getElementById("confirm-btn").addEventListener("click", () => {
+          console.log("準備送出付款...");
+      });
+    });
+  </script>
 </body>
 </html>

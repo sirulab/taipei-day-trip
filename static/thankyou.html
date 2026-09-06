@@ -4,8 +4,42 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Thank You</title>
+  <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
+  <!-- <nav></nav> -->
+  <main class="thankyou-main">
+    <h2 class="thankyou-title">行程預定成功</h2>
+    
+    <div class="thankyou-content">
+      <p>感謝您的訂購，您的行程已經成功保留與付款。</p>
+      <p>您的訂單編號為：</p>
+      <div class="order-number" id="order-number">載入中...</div>
+      <p>請記下您的訂單編號。</p>
+      <p>請保持手機暢通，準時到達，導覽人員將用手機與您聯繫。</p>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>COPYRIGHT 2021 台北一日遊</p>
+  </footer>
+
+  <script src="/static/nav.js"></script>
   
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const orderNumber = urlParams.get('number');
+      
+      const orderNumberDisplay = document.getElementById('order-number');
+      
+      if (orderNumber) {
+        orderNumberDisplay.textContent = orderNumber;
+      } else {
+        orderNumberDisplay.textContent = "無法取得訂單編號";
+        orderNumberDisplay.style.color = "red";
+      }
+    });
+  </script>
 </body>
 </html>

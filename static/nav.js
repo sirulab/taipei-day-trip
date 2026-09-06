@@ -20,6 +20,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const authPopup = document.getElementById('auth-popup');
     const authOverlay = document.getElementById('auth-overlay'); // 遮罩
 
+    const bookingLink = document.querySelector('.navbar-links a');
+    
+    bookingLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        
+        const token = localStorage.getItem('token');
+        if (token) {
+            window.location.href = '/booking';
+        } else {
+            openPopup();
+        }
+    });
+
     const signInTemplate = `
         <div class="decorator-bar"></div>
         <div class="auth-popup-content">
@@ -56,6 +69,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (authOverlay) authOverlay.style.display = 'block';
         renderSignIn();
     }
+
+    window.openAuthPopup = openPopup;
 
     function closePopup() {
         authPopup.style.display = 'none';
