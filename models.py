@@ -52,3 +52,22 @@ class BookingRequest(BaseModel):
     date: date 
     time: Literal["morning", "afternoon"] 
     price: Literal[2000, 2500]
+
+class ContactInfo(BaseModel):
+    name: str
+    email: EmailStr
+    phone: str
+
+class TripInfo(BaseModel):
+    attraction: dict
+    date: str
+    time: str
+
+class OrderInfo(BaseModel):
+    price: int
+    trip: TripInfo
+    contact: ContactInfo
+
+class OrderRequest(BaseModel):
+    prime: str
+    order: OrderInfo
