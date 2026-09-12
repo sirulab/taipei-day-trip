@@ -10,6 +10,16 @@ from passlib.context import CryptContext
 from datetime import datetime, timedelta
 from fastapi import Header
 
+import requests
+import random
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+TAPPAY_PARTNER_KEY = os.getenv("TAPPAY_PARTNER_KEY")
+TAPPAY_MERCHANT_ID = os.getenv("TAPPAY_MERCHANT_ID")
+
 app=FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
@@ -409,6 +419,90 @@ def delete_booking(authorization: Optional[str] = Header(None)):
     except Exception as e:
         if conn: conn.rollback()
         print(f"DELETE Booking Error: {e}")
+        return JSONResponse(status_code=500, content={"error": True, "message": "伺服器內部錯誤"})
+    finally:
+        if conn and conn.is_connected():
+            cursor.close()
+            conn.close()
+
+@app.post("/api/orders")
+def create_order(order_req: OrderRequest, authorization: Optional[str] = Header(None)):
+    user_payload = verify_token(authorization)
+    if not user_payload:
+        return JSONResponse(status_code=403, content={"error": True, "message": "未登入"})
+    
+    now = datetime.now()
+    order_number = now.strftime("%Y%m%d%H%M%S") + str(random.randint(1000, 9999))
+    user_id = user_payload["id"]
+    
+    conn = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        sql_insert_order = """
+        INSERT INTO orders (order_number, user_id, price, attraction_id, date, time, contact_name, contact_email, contact_phone, status)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
+        val = (
+            order_number, user_id, order_req.order.price, 
+            order_req.order.trip.attraction["id"], order_req.order.trip.date, order_req.order.trip.time,
+            order_req.order.contact.name, order_req.order.contact.email, order_req.order.contact.phone,
+            "UNPAID"
+        )
+        cursor.execute(sql_insert_order, val)
+        conn.commit()
+
+        tappay_url = "https://sandbox.tappaysdk.com/tpc/payment/pay-by-prime"
+        headers = {
+            "Content-Type": "application/json",
+            "x-api-key": TAPPAY_PARTNER_KEY
+        }
+        tappay_data = {
+            "prime": order_req.prime,
+            "partner_key": TAPPAY_PARTNER_KEY,
+            "merchant_id": TAPPAY_MERCHANT_ID,
+            "details": "台北一日遊行程訂購",
+            "amount": order_req.order.price,
+            "cardholder": {
+                "phone_number": order_req.order.contact.phone,
+                "name": order_req.order.contact.name,
+                "email": order_req.order.contact.email
+            },
+            "remember": False
+        }
+        
+        response = requests.post(tappay_url, headers=headers, json=tappay_data)
+        tappay_result = response.json()
+        
+        if tappay_result.get("status") == 0:
+            cursor.execute("UPDATE orders SET status = 'PAID' WHERE order_number = %s", (order_number,))
+            cursor.execute("DELETE FROM booking WHERE email = %s", (user_payload["email"],))
+            conn.commit()
+            
+            return {
+                "data": {
+                    "number": order_number,
+                    "payment": {
+                        "status": 0,
+                        "message": "付款成功"
+                    }
+                }
+            }
+        else:
+            return {
+                "data": {
+                    "number": order_number,
+                    "payment": {
+                        "status": tappay_result.get("status"),
+                        "message": "付款失敗"
+                    }
+                }
+            }
+            
+    except Exception as e:
+        if conn: conn.rollback()
+        print(f"Order Error: {e}")
         return JSONResponse(status_code=500, content={"error": True, "message": "伺服器內部錯誤"})
     finally:
         if conn and conn.is_connected():
