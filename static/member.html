@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>台北一日遊 - 會員中心</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <main class="member-main">
+    <div class="member-greeting">您好，<span id="member-name"></span>：</div>
+    <hr class="divider">
+    
+    <div class="mcp-section">
+      <div class="mcp-title">AI 工具整合</div>
+      <p style="">MCP 伺服器設定：</p>
+      <ul class="mcp-info-list">
+        <li>
+          <strong>Host URL</strong>
+          <span class="token-text" id="mcp-host">http://127.0.0.1:8000/mcp/</span>
+        </li>
+        <li>
+          <strong>Bearer Token</strong>
+          <span class="token-text" id="mcp-token">載入中...</span>
+        </li>
+      </ul>
+      <button class="action-btn" id="update-token-btn">產生 / 更新金鑰</button>
+    </div>
+
+    <button class="action-btn logout-btn" id="logout-btn">登出會員</button>
+  </main>
+
+  <footer class="site-footer">
+    <p>COPYRIGHT © 2026 台北一日遊</p>
+  </footer>
+
+  <script src="/static/nav.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        window.location.href = "/";
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/auth", {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        const result = await res.json();
+        
+        if (result.data) {
+          document.getElementById("member-name").textContent = result.data.name;
+          document.getElementById("mcp-token").textContent = token;
+          document.getElementById("mcp-host").textContent = window.location.origin + "/mcp/";
+        } else {
+          window.location.href = "/";
+        }
+      } catch (e) {
+        window.location.href = "/";
+      }
+
+      document.getElementById("update-token-btn").addEventListener("click", async () => {
+        try {
+          const currentToken = localStorage.getItem("token");
+          const res = await fetch("/api/token", {
+            method: "PUT",
+            headers: { "Authorization": `Bearer ${currentToken}` }
+          });
+          const result = await res.json();
+          if (result.ok && result.token) {
+            localStorage.setItem("token", result.token);
+            document.getElementById("mcp-token").textContent = result.token;
+            alert("金鑰已成功產生與更新！");
+          } else {
+            alert("更新失敗：" + (result.message || "未知錯誤"));
+          }
+        } catch (e) {
+          console.error("Token Update Error:", e);
+        }
+      });
+
+      document.getElementById("logout-btn").addEventListener("click", () => {
+        localStorage.removeItem("token");
+        window.location.href = "/";
+      });
+    });
+  </script>
+    
+</body>
+</html>
