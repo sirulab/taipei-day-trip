@@ -766,3 +766,18 @@ input[type="radio"]:checked {
   margin: var(--space-lg) 0;
   color: var(--black);
 }
+
+.tpfield {
+  height: 40px;               
+  width: 100%;                
+  border: 1px solid var(--border-color); 
+  border-radius: 5px;         
+  padding: 10px;              
+  box-sizing: border-box;
+  background-color: var(--bg-white);
+}
+
+.tpfield:focus-within {
+  border-color: var(--primary-color);
+  outline: none;
+}

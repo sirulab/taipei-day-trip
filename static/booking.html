@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>台北一日遊</title>
   <link rel="stylesheet" href="/static/style.css">
+  <script src="https://js.tappaysdk.com/sdk/tpdirect/v5.1.0"></script>
 </head>
 <body>
 
@@ -60,16 +61,16 @@
       <section class="payment-info form-section">
         <h3>信用卡付款資訊</h3>
         <div class="form-group">
-          <label for="card-number">卡片號碼：</label>
-          <input type="text" id="card-number" placeholder="**** **** **** ****" required>
+          <label>卡片號碼：</label>
+          <div class="tpfield" id="card-number"></div>
         </div>
         <div class="form-group">
-          <label for="card-expiry">過期時間：</label>
-          <input type="text" id="card-expiry" placeholder="MM/YY" required>
+          <label>過期時間：</label>
+          <div class="tpfield" id="card-expiration-date"></div>
         </div>
         <div class="form-group">
-          <label for="card-cvv">驗證密碼：</label>
-          <input type="text" id="card-cvv" placeholder="CVV" required>
+          <label>驗證密碼：</label>
+          <div class="tpfield" id="card-ccv"></div>
         </div>
       </section>
 
@@ -94,6 +95,23 @@
 
   <script>
     document.addEventListener("DOMContentLoaded", async () => {
+      let currentBookingData = null; 
+
+      TPDirect.setupSDK(171124, 'app_2zwMPTmGmJIq9dmZTd9YLzWXAsESbpa07v2xtQUn4EIFudd36yu2IQuplXYK', 'sandbox');
+      TPDirect.card.setup({
+      fields: {
+          number: { element: '#card-number', placeholder: '**** **** **** ****' },
+          expirationDate: { element: '#card-expiration-date', placeholder: 'MM / YY' },
+          ccv: { element: '#card-ccv', placeholder: 'CCV' }
+      },
+      styles: { 
+          'input': { 'color': 'gray' },
+          'input.ccv': { 'font-size': '16px' },
+          'input.expiration-date': { 'font-size': '16px' },
+          'input.number': { 'font-size': '16px' }
+      }
+      });   
+      
       const token = localStorage.getItem("token");
       if (!token) {
         window.location.href = "/";
@@ -131,6 +149,8 @@
 
         if (bookingResult.data) {
           const data = bookingResult.data;
+
+          currentBookingData = data;
           
           document.getElementById("book-img").src = data.attraction.image;
           document.getElementById("book-name").textContent = `台北一日遊：${data.attraction.name}`;
@@ -170,10 +190,69 @@
         });
       }
 
-      document.getElementById("confirm-btn").addEventListener("click", () => {
-          console.log("準備送出付款...");
+    document.getElementById("confirm-btn").addEventListener("click", () => {
+      const tappayStatus = TPDirect.card.getTappayFieldsStatus();
+      if (tappayStatus.canGetPrime === false) {
+          alert('信用卡資訊填寫錯誤');
+          return;
+      }
+
+      TPDirect.card.getPrime(async (result) => {
+        if (result.status !== 0) {
+            alert('取得 Prime 失敗');
+            return;
+        }
+        
+        const prime = result.card.prime;
+        const contactName = document.getElementById("contact-name").value;
+        const contactEmail = document.getElementById("contact-email").value;
+        const contactPhone = document.getElementById("contact-phone").value;
+
+        if (!contactName || !contactEmail || !contactPhone) {
+            alert("請完整填寫聯絡資訊");
+            return;
+        }
+
+        const requestBody = {
+            prime: prime,
+            order: {
+                price: currentBookingData.price,
+                trip: {
+                    attraction: currentBookingData.attraction,
+                    date: currentBookingData.date,
+                    time: currentBookingData.time
+                },
+                contact: {
+                    name: contactName,
+                    email: contactEmail,
+                    phone: contactPhone
+                }
+            }
+        };
+
+        try {
+            const token = localStorage.getItem("token");
+            const response = await fetch("/api/orders", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify(requestBody)
+            });
+            
+            const orderResult = await response.json();
+            if (orderResult.data && orderResult.data.number) {
+                window.location.href = `/thankyou?number=${orderResult.data.number}`;
+            } else {
+                alert(orderResult.message || "訂單建立失敗");
+            }
+        } catch (error) {
+            console.error("Order Submit Error:", error);
+        }
       });
-    });
+  });
+});
   </script>
 </body>
 </html>
