@@ -4,7 +4,8 @@
       "command": "http",
       "url": "http://127.0.0.1:8000/mcp/",
       "headers": {
-        "Authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6InRlc3QiLCJlbWFpbCI6InRlc3RAZ21haWwuY29tIiwiZXhwIjoxNzkwNDM0MjgwfQ.J6RrFhkUsAmtuItS4q3u_KIWMQ6If9G4xGxQd3NCe9Y"
+        "Authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NSwibmFtZSI6InRlc3QiLCJlbWFpbCI6InRlc3QyQGdtYWlsLmNvbSIsImV4cCI6MTc5MDQzOTMwMH0.1ZyFmHKQblavlU26s_uIpVm5A9hQOQWheUexow7IeS4"
+      // for test2
       }
     }
   }
