@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "taipei-day-trip-server": {
+      "command": "http",
+      "url": "http://127.0.0.1:8000/mcp/",
+      "headers": {
+        "Authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6InRlc3QiLCJlbWFpbCI6InRlc3RAZ21haWwuY29tIiwiZXhwIjoxNzkwNDM0MjgwfQ.J6RrFhkUsAmtuItS4q3u_KIWMQ6If9G4xGxQd3NCe9Y"
+      }
+    }
+  }
+}

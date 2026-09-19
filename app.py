@@ -15,7 +15,8 @@ from fastapi.staticfiles import StaticFiles
 from database import get_db_connection
 from models import *
 
-from mcp.server.fastmcp import FastMCP
+# from mcp.server.fastmcp import FastMCP
+from mcp.server.mcpserver import MCPServer
 from contextvars import ContextVar
 from starlette.middleware.base import BaseHTTPMiddleware
 
@@ -57,6 +58,10 @@ async def booking(request: Request):
 @app.get("/thankyou", include_in_schema=False)
 async def thankyou(request: Request):
     return FileResponse("./static/thankyou.html", media_type="text/html")
+
+@app.get("/member", include_in_schema=False)
+async def member(request: Request):
+    return FileResponse("./static/member.html", media_type="text/html")
 
 ###
 def get_images(cursor, attraction_ids: list):
@@ -526,10 +531,11 @@ def create_order(order_req: OrderRequest, authorization: Optional[str] = Header(
             cursor.close()
             conn.close()
 
-mcp = FastMCP("TaipeiDayTrip")
+# mcp = FastMCP("TaipeiDayTrip")
+mcp = MCPServer("台北一日遊")
 
-# 工具一：搜尋台北市景點
-@mcp.tool()
+
+@mcp.tool(name="搜尋台北市景點")
 def search_attractions(keyword: str):
     conn = None
     try:
@@ -547,7 +553,7 @@ def search_attractions(keyword: str):
             cursor.close()
             conn.close()
 
-@mcp.tool()
+@mcp.tool(name="預定景點導覽行程")
 def book_trip(attraction_id: int, date: str, time: str, price: int):
     token = auth_token_var.get()
     
@@ -579,3 +585,22 @@ def book_trip(attraction_id: int, date: str, time: str, price: int):
         if conn and conn.is_connected():
             cursor.close()
             conn.close()
+
+@app.put("/api/token", tags=["User"], summary="產生或更新會員 Token")
+def generate_or_update_token(authorization: Optional[str] = Header(None)):
+    user_payload = verify_token(authorization)
+    if not user_payload:
+        return JSONResponse(status_code=403, content={"error": True, "message": "未授權的操作"})
+    
+    # 7 天
+    payload = {
+        "id": user_payload["id"],
+        "name": user_payload["name"],
+        "email": user_payload["email"],
+        "exp": datetime.utcnow() + timedelta(days=7)
+    }
+    new_token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+    
+    return {"ok": True, "token": new_token}
+
+app.mount("/mcp", mcp)
