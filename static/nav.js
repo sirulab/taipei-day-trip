@@ -151,10 +151,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    async function handleSignOut() {
-        localStorage.removeItem('token');
-        window.location.reload();
-    }
+    // async function handleSignOut() {
+    //     localStorage.removeItem('token');
+    //     window.location.reload();
+    // }
 
     async function checkAuthStatus() {
         const token = localStorage.getItem('token');
@@ -175,8 +175,12 @@ document.addEventListener("DOMContentLoaded", () => {
         const result = await response.json();
 
         if (result.data) {
-            navAuthBtn.textContent = '登出系統';
-            navAuthBtn.onclick = handleSignOut;
+            navAuthBtn.textContent = '會員中心';
+            //navAuthBtn.onclick = handleSignOut;
+            navAuthBtn.onclick = () => {
+                window.location.href = "/member";
+            };
+
         } else {
             localStorage.removeItem('token');
             navAuthBtn.textContent = '登入/註冊';

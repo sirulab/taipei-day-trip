@@ -1,19 +1,26 @@
-from fastapi import *
-from fastapi.responses import FileResponse, JSONResponse
+import os
+import random
 from typing import Optional
+from datetime import datetime, timedelta
+
+import jwt
+import requests
 import mysql.connector
+from dotenv import load_dotenv
+from passlib.context import CryptContext
+from fastapi import FastAPI, Request, Query, Path, Header
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
+
 from database import get_db_connection
 from models import *
-from fastapi.staticfiles import StaticFiles
-import jwt
-from passlib.context import CryptContext
-from datetime import datetime, timedelta
-from fastapi import Header
 
-import requests
-import random
-import os
-from dotenv import load_dotenv
+# from mcp.server.fastmcp import FastMCP
+from mcp.server.mcpserver import MCPServer
+from contextvars import ContextVar
+from starlette.middleware.base import BaseHTTPMiddleware
+
+# 整理一下套件
 
 load_dotenv()
 
@@ -26,6 +33,17 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 SECRET_KEY = 'safer_secret_key_for_taipei_trip'
 ALGORITHM = 'HS256'
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
+
+auth_token_var = ContextVar("auth_token", default=None)
+
+@app.middleware("http")
+async def extract_token_middleware(request: Request, call_next):
+    auth_header = request.headers.get("Authorization")
+    if auth_header and auth_header.startswith("Bearer "):
+        auth_token_var.set(auth_header.split(" ")[1])
+    else:
+        auth_token_var.set(None)
+    return await call_next(request)
 
 # Static Pages (Never Modify Code in this Block)
 @app.get("/", include_in_schema=False)
@@ -40,6 +58,10 @@ async def booking(request: Request):
 @app.get("/thankyou", include_in_schema=False)
 async def thankyou(request: Request):
     return FileResponse("./static/thankyou.html", media_type="text/html")
+
+@app.get("/member", include_in_schema=False)
+async def member(request: Request):
+    return FileResponse("./static/member.html", media_type="text/html")
 
 ###
 def get_images(cursor, attraction_ids: list):
@@ -508,3 +530,77 @@ def create_order(order_req: OrderRequest, authorization: Optional[str] = Header(
         if conn and conn.is_connected():
             cursor.close()
             conn.close()
+
+# mcp = FastMCP("TaipeiDayTrip")
+mcp = MCPServer("台北一日遊")
+
+
+@mcp.tool(name="搜尋台北市景點")
+def search_attractions(keyword: str):
+    conn = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        sql = "SELECT id, name, description FROM attraction WHERE name LIKE %s OR mrt = %s"
+        cursor.execute(sql, (f"%{keyword}%", keyword))
+        rows = cursor.fetchall()
+        
+        return {"data": rows}
+    except Exception as e:
+        return {"error": True}
+    finally:
+        if conn and conn.is_connected():
+            cursor.close()
+            conn.close()
+
+@mcp.tool(name="預定景點導覽行程")
+def book_trip(attraction_id: int, date: str, time: str, price: int):
+    token = auth_token_var.get()
+    
+    user_payload = verify_token(f"Bearer {token}" if token else None)
+    
+    if not user_payload:
+        return {"error": True}
+        
+    user_email = user_payload["email"]
+    conn = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        cursor.execute("DELETE FROM booking WHERE email = %s", (user_email,))
+        
+        sql = "INSERT INTO booking (attractionId, date, time, price, email) VALUES (%s, %s, %s, %s, %s)"
+        cursor.execute(sql, (attraction_id, date, time, price, user_email))
+        conn.commit()
+        
+        return {
+            "ok": True,
+            "message": "台北導覽行程，預定成功，請到 http://127.0.0.1:8000/booking 完成付款。" 
+        }
+    except Exception as e:
+        if conn: conn.rollback()
+        return {"error": True}
+    finally:
+        if conn and conn.is_connected():
+            cursor.close()
+            conn.close()
+
+@app.put("/api/token", tags=["User"], summary="產生或更新會員 Token")
+def generate_or_update_token(authorization: Optional[str] = Header(None)):
+    user_payload = verify_token(authorization)
+    if not user_payload:
+        return JSONResponse(status_code=403, content={"error": True, "message": "未授權的操作"})
+    
+    # 7 天
+    payload = {
+        "id": user_payload["id"],
+        "name": user_payload["name"],
+        "email": user_payload["email"],
+        "exp": datetime.utcnow() + timedelta(days=7)
+    }
+    new_token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+    
+    return {"ok": True, "token": new_token}
+
+app.mount("/mcp", mcp)
