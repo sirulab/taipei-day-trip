@@ -781,3 +781,13 @@ input[type="radio"]:checked {
   border-color: var(--primary-color);
   outline: none;
 }
+
+.member-main { max-width: 1000px; margin: 50px auto; padding: 0 20px; min-height: 60vh; }
+.member-greeting { font-size: 24px; font-weight: bold; color: #666; margin-bottom: 20px; }
+.mcp-section { margin-top: 40px; }
+.mcp-title { font-size: 20px; font-weight: bold; color: #666; margin-bottom: 20px; }
+.mcp-info-list { list-style: disc; margin-left: 20px; color: #666; font-size: 16px; line-height: 2; }
+.mcp-info-list li { margin-bottom: 15px; word-break: break-all; }
+.token-text { display: block; color: #666; font-family: monospace; background: #f4f4f4; padding: 5px 10px; margin-top: 5px; border-radius: 4px; }
+.action-btn { background: #448899; color: white; padding: 10px 20px; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; margin-top: 10px; }
+.logout-btn { background: #448899; margin-top: 50px; display: block; }
